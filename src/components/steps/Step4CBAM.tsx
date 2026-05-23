@@ -1,0 +1,429 @@
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { Lock, CheckCircle2, XCircle, AlertCircle, BarChart3, ArrowRight, Shield } from 'lucide-react'
+import PhaseLoader from '../shared/PhaseLoader'
+import type { Phase } from '../shared/PhaseLoader'
+
+// ─── Data ───────────────────────────────────────────────────────────────────
+const PHASE_IN: Record<number, number> = { 2026: 0.025, 2027: 0.05, 2028: 0.10, 2029: 0.225, 2030: 0.35, 2031: 0.475, 2032: 0.60, 2033: 0.80, 2034: 1.0 }
+const YEARS = Object.keys(PHASE_IN).map(Number)
+
+const SECTOR = { name: 'Palm Oil (CPO)', mean: 3.2, std: 0.8, benchmark: 1.8, euDefault: 4.5 }
+const EF = 3.2
+const VOLUME = 2400
+const FX = 1450
+const EU_PRICE_BASE = 87.5
+
+// ─── Phases ─────────────────────────────────────────────────────────────────
+const SCORING_PHASES: Phase[] = [
+  { id: 'load', label: '업종 배출계수 DB 로딩...', icon: BarChart3, duration: 800 },
+  { id: 'validate', label: '데이터 정합성 검증 중...', icon: Shield, duration: 1200 },
+  { id: 'zscore', label: 'Z-score 이상치 탐지...', icon: AlertCircle, duration: 1000 },
+  { id: 'score', label: '품질 스코어 산출 중...', icon: CheckCircle2, duration: 800 },
+]
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+function simulateCosts(volume: number, fx: number, ef: number) {
+  const scenarios: Record<string, number[]> = { actual: [], default_eu: [], benchmark: [] }
+  YEARS.forEach((y, i) => {
+    const price = EU_PRICE_BASE * (1.08 ** i)
+    const phaseIn = PHASE_IN[y]
+    const freeAlloc = SECTOR.benchmark * (1 - phaseIn)
+    scenarios.actual.push(+(Math.max(0, ef - freeAlloc) * volume * price * phaseIn / 1e8 * fx).toFixed(2))
+    scenarios.default_eu.push(+(Math.max(0, SECTOR.euDefault - freeAlloc) * volume * price * phaseIn / 1e8 * fx).toFixed(2))
+    scenarios.benchmark.push(+(Math.max(0, SECTOR.benchmark - freeAlloc) * volume * price * phaseIn / 1e8 * fx).toFixed(2))
+  })
+  return scenarios
+}
+
+async function sha256(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+// ─── Component ──────────────────────────────────────────────────────────────
+export default function Step4CBAM() {
+  const [stage, setStage] = useState<'scoring' | 'score-result' | 'blockchain' | 'simulation'>('scoring')
+  const [scoreChecks, setScoreChecks] = useState<{ pass: boolean; msg: string }[]>([])
+  const [visibleChecks, setVisibleChecks] = useState(0)
+  const [blockHash, setBlockHash] = useState('')
+  const [tamperValue, setTamperValue] = useState(EF.toString())
+  const [tamperResult, setTamperResult] = useState<{ match: boolean; msg: string } | null>(null)
+  const [simVolume, setSimVolume] = useState(VOLUME)
+  const [simFx, setSimFx] = useState(FX)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  // Quality score checks
+  const checks: { pass: boolean; msg: string }[] = [
+    { pass: true, msg: `배출계수 ${EF} tCO₂/t — 업종 평균(${SECTOR.mean})의 ±2σ 이내 (z=0.0)` },
+    { pass: true, msg: `EU 기본값(${SECTOR.euDefault}) 미만 — 실측 제출 시 연간 수십억 절감 가능` },
+    { pass: true, msg: `에너지 사용량 12.0 GJ/t — 업종 범위 내 정상` },
+    { pass: true, msg: `생산량 ${VOLUME.toLocaleString()}톤 — 합리적 범위 확인` },
+    { pass: false, msg: `EU 벤치마크(${SECTOR.benchmark})의 1.78배 — 개선 여지 있음` },
+  ]
+  const score = 85
+
+  // Auto-flow: scoring → result reveal
+  const onScoringComplete = () => {
+    setScoreChecks(checks)
+    setStage('score-result')
+  }
+
+  // Reveal checks one by one
+  useEffect(() => {
+    if (stage === 'score-result' && visibleChecks < scoreChecks.length) {
+      const t = setTimeout(() => setVisibleChecks(c => c + 1), 250)
+      return () => clearTimeout(t)
+    }
+    if (stage === 'score-result' && visibleChecks >= scoreChecks.length && visibleChecks > 0) {
+      const t = setTimeout(() => {
+        // Auto-record blockchain
+        sha256(JSON.stringify({ ef: EF, score, company: 'UniHana', ts: '2026-05-23T14:30:00Z' })).then(h => {
+          setBlockHash(h)
+          setStage('blockchain')
+        })
+      }, 1200)
+      return () => clearTimeout(t)
+    }
+  }, [stage, visibleChecks, scoreChecks.length])
+
+  // Auto-advance to simulation
+  useEffect(() => {
+    if (stage === 'blockchain') {
+      const t = setTimeout(() => setStage('simulation'), 2500)
+      return () => clearTimeout(t)
+    }
+  }, [stage])
+
+  // Draw Gaussian
+  const drawGaussian = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas || stage === 'scoring') return
+    const s = SECTOR
+    const dpr = window.devicePixelRatio || 1
+    const W = 600, H = 130
+    canvas.width = W * dpr
+    canvas.height = H * dpr
+    canvas.style.width = '100%'
+    canvas.style.height = `${H}px`
+    const ctx = canvas.getContext('2d')!
+    ctx.scale(dpr, dpr)
+    ctx.clearRect(0, 0, W, H)
+
+    const pad = { l: 35, r: 15, t: 12, b: 24 }
+    const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b
+    const xMin = Math.max(0, s.mean - 4 * s.std), xMax = s.mean + 4 * s.std
+    const toX = (v: number) => pad.l + ((v - xMin) / (xMax - xMin)) * cW
+    const gauss = (x: number) => Math.exp(-0.5 * ((x - s.mean) / s.std) ** 2) / (s.std * Math.sqrt(2 * Math.PI))
+    const yMax = gauss(s.mean) * 1.15
+    const toY = (v: number) => pad.t + cH - (v / yMax) * cH
+
+    // ±2σ zone
+    ctx.fillStyle = 'rgba(16,185,129,0.06)'
+    ctx.fillRect(toX(s.mean - 2 * s.std), pad.t, toX(s.mean + 2 * s.std) - toX(s.mean - 2 * s.std), cH)
+
+    // Curve fill
+    ctx.beginPath()
+    ctx.moveTo(toX(xMin), toY(0))
+    for (let i = 0; i <= 200; i++) { const x = xMin + (xMax - xMin) * i / 200; ctx.lineTo(toX(x), toY(gauss(x))) }
+    ctx.lineTo(toX(xMax), toY(0))
+    ctx.fillStyle = 'rgba(0,0,0,0.025)'
+    ctx.fill()
+
+    // Curve stroke
+    ctx.beginPath()
+    for (let i = 0; i <= 200; i++) { const x = xMin + (xMax - xMin) * i / 200; i === 0 ? ctx.moveTo(toX(x), toY(gauss(x))) : ctx.lineTo(toX(x), toY(gauss(x))) }
+    ctx.strokeStyle = '#525252'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+
+    // EU default
+    ctx.beginPath(); ctx.setLineDash([5, 3]); ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 1.2
+    ctx.moveTo(toX(s.euDefault), pad.t); ctx.lineTo(toX(s.euDefault), pad.t + cH); ctx.stroke(); ctx.setLineDash([])
+    ctx.fillStyle = '#DC2626'; ctx.font = '10px Inter, sans-serif'
+    ctx.fillText(`EU Default ${s.euDefault}`, toX(s.euDefault) + 3, pad.t + 11)
+
+    // Benchmark
+    ctx.beginPath(); ctx.setLineDash([3, 3]); ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1
+    ctx.moveTo(toX(s.benchmark), pad.t); ctx.lineTo(toX(s.benchmark), pad.t + cH); ctx.stroke(); ctx.setLineDash([])
+    ctx.fillStyle = '#3b82f6'; ctx.font = '9px Inter, sans-serif'
+    ctx.fillText(`BM ${s.benchmark}`, toX(s.benchmark) + 3, pad.t + cH - 3)
+
+    // User marker
+    ctx.beginPath(); ctx.fillStyle = '#10b981'
+    ctx.arc(toX(EF), toY(gauss(EF)), 6, 0, Math.PI * 2); ctx.fill()
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke()
+    ctx.fillStyle = '#0A0A0A'; ctx.font = '600 11px Inter, sans-serif'
+    ctx.fillText(`Your: ${EF}`, toX(EF) + 9, toY(gauss(EF)) - 3)
+
+    // X axis
+    ctx.beginPath(); ctx.strokeStyle = '#E4E4E7'; ctx.lineWidth = 1
+    ctx.moveTo(pad.l, pad.t + cH); ctx.lineTo(pad.l + cW, pad.t + cH); ctx.stroke()
+    ctx.fillStyle = '#A1A1AA'; ctx.font = '10px JetBrains Mono, monospace'
+    for (let i = 0; i <= 5; i++) { const v = xMin + (xMax - xMin) * i / 5; ctx.fillText(v.toFixed(1), toX(v) - 10, pad.t + cH + 14) }
+  }, [stage])
+
+  useEffect(() => { drawGaussian() }, [drawGaussian])
+
+  // Simulation data
+  const costData = YEARS.map((y, i) => {
+    const sc = simulateCosts(simVolume, simFx, EF)
+    return { year: y, '실측 제출': sc.actual[i], 'EU 기본값': sc.default_eu[i], '벤치마크 달성': sc.benchmark[i], phaseIn: PHASE_IN[y] * 100 }
+  })
+  const finalSaving = (costData[costData.length - 1]['EU 기본값'] - costData[costData.length - 1]['실측 제출']).toFixed(1)
+
+  const handleTamper = async () => {
+    const val = parseFloat(tamperValue)
+    const newHash = await sha256(JSON.stringify({ ef: val, score, company: 'UniHana', ts: '2026-05-23T14:30:00Z' }))
+    const match = newHash === blockHash
+    setTamperResult({ match, msg: match ? '해시 일치 — 변조 없음' : `해시 불일치 — 변조 감지! (0x${newHash.slice(0, 8)}... ≠ 0x${blockHash.slice(0, 8)}...)` })
+  }
+
+  return (
+    <section>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <div className="mb-6">
+          <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">CBAM 비용 분석</h2>
+          <p className="text-[13px] text-muted2 mt-1">배출 데이터 품질 검증 → 블록체인 인증 → 연도별 CBAM 비용 시뮬레이션</p>
+        </div>
+
+        <div className="border border-border rounded-card bg-white p-6 space-y-8">
+
+          {/* ═══ Module 1: Quality Score ═══ */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-full bg-ink text-white flex items-center justify-center text-[11px] font-bold">1</div>
+              <span className="text-[14px] font-bold text-ink">AI 품질 스코어링</span>
+              <span className="text-[12px] text-muted2">배출 데이터 신뢰성 검증</span>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {stage === 'scoring' && (
+                <motion.div key="scoring" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+                  <PhaseLoader phases={SCORING_PHASES} onComplete={onScoringComplete} />
+                </motion.div>
+              )}
+
+              {stage !== 'scoring' && (
+                <motion.div key="score-done" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                  <div className="grid grid-cols-[180px_1fr] gap-4 mb-4">
+                    {/* Score */}
+                    <div className="bg-surface rounded-card border border-border p-5 text-center">
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+                        className="font-mono text-[48px] font-black text-emerald-600 leading-none"
+                      >{score}</motion.div>
+                      <div className="text-[10px] text-muted3 mt-1">/100</div>
+                      <div className="text-[11px] font-semibold text-emerald-600 mt-2">✓ High Quality</div>
+                    </div>
+                    {/* Checks */}
+                    <div className="bg-surface rounded-card border border-border p-4 space-y-2">
+                      {scoreChecks.slice(0, visibleChecks).map((c, i) => (
+                        <motion.div key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }} className="flex items-start gap-2 text-[12px]">
+                          {c.pass ? <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> : <XCircle size={14} className="text-amber-500 shrink-0 mt-0.5" />}
+                          <span className="text-muted2">{c.msg}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Gaussian */}
+                  <div className="bg-surface rounded-card border border-border p-4">
+                    <div className="text-[11px] font-semibold text-muted2 mb-2">업종 배출계수 분포 (Palm Oil CPO)</div>
+                    <canvas ref={canvasRef} />
+                    <div className="text-[9px] text-muted3 text-center mt-1">μ={SECTOR.mean} · σ={SECTOR.std} · 초록점=본건(3.2) · 빨간선=EU기본값(4.5) · 파란선=벤치마크(1.8)</div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ═══ Module 2: Blockchain ═══ */}
+          <AnimatePresence>
+            {(stage === 'blockchain' || stage === 'simulation') && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.4 }}>
+                <div className="border-t border-border pt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-7 h-7 rounded-full bg-ink text-white flex items-center justify-center text-[11px] font-bold">2</div>
+                    <span className="text-[14px] font-bold text-ink">블록체인 인증</span>
+                    <span className="text-[12px] text-muted2">검증 이력 변조 불가 보관</span>
+                  </div>
+
+                  {/* Block chain visualization */}
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    <div className="bg-surface border border-border rounded-lg px-4 py-2.5 text-center">
+                      <div className="text-[10px] font-bold text-muted2">Block #1041</div>
+                      <div className="font-mono text-[8px] text-muted3">0x7a3f...e2b1</div>
+                    </div>
+                    <ArrowRight size={14} className="text-emerald-500" />
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 150 }}
+                      className="bg-emerald-50 border-2 border-emerald-400 rounded-lg px-4 py-2.5 text-center"
+                    >
+                      <div className="text-[10px] font-bold text-emerald-800">Block #1042 (NEW)</div>
+                      <div className="font-mono text-[8px] text-emerald-700">0x{blockHash.slice(0, 8)}...{blockHash.slice(-4)}</div>
+                    </motion.div>
+                    <ArrowRight size={14} className="text-muted3" />
+                    <div className="bg-surface border border-dashed border-border rounded-lg px-4 py-2.5 text-center">
+                      <div className="text-[10px] font-bold text-muted3">Block #1043</div>
+                      <div className="text-[8px] text-muted3">다음 블록...</div>
+                    </div>
+                  </div>
+
+                  {/* Record content */}
+                  <div className="bg-surface rounded-card border border-border p-4 font-mono text-[11px] leading-relaxed mb-4">
+                    <div className="text-[11px] font-sans font-semibold text-ink mb-2 flex items-center gap-1.5"><Lock size={12} /> 온체인 기록 내용</div>
+                    <div><span className="text-muted3">txHash:</span> <span className="text-emerald-700">0x{blockHash}</span></div>
+                    <div><span className="text-muted3">timestamp:</span> 2026-05-23T14:30:00Z</div>
+                    <div><span className="text-muted3">company:</span> UniHana Trading GmbH</div>
+                    <div><span className="text-muted3">product:</span> Palm Oil CPO (HS 1511.10)</div>
+                    <div><span className="text-muted3">emission_factor:</span> {EF} tCO₂/t</div>
+                    <div><span className="text-muted3">quality_score:</span> {score}/100</div>
+                    <div><span className="text-muted3">verifier:</span> EcoTrade AI v2.0</div>
+                  </div>
+
+                  {/* Tamper detection */}
+                  <div className="bg-surface rounded-card border border-border p-4">
+                    <div className="text-[11px] font-semibold text-ink mb-2">변조 감지 테스트</div>
+                    <p className="text-[11px] text-muted2 mb-3">배출계수를 변경하면 해시가 달라져 변조가 즉시 감지됩니다.</p>
+                    <div className="flex items-center gap-2">
+                      <input type="number" step="0.01" value={tamperValue} onChange={e => { setTamperValue(e.target.value); setTamperResult(null) }}
+                        className="w-24 px-3 py-2 border border-border rounded-lg text-[12px] font-mono focus:outline-none focus:ring-2 focus:ring-ink/10" />
+                      <button onClick={handleTamper} className="px-4 py-2 text-[11px] font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all active:scale-[0.97]">
+                        변조 검증
+                      </button>
+                      {tamperResult && (
+                        <span className={`text-[11px] font-semibold flex items-center gap-1 ${tamperResult.match ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {tamperResult.match ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />}
+                          {tamperResult.msg}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ═══ Module 3: Simulation ═══ */}
+          <AnimatePresence>
+            {stage === 'simulation' && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.4 }}>
+                <div className="border-t border-border pt-8">
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-7 h-7 rounded-full bg-ink text-white flex items-center justify-center text-[11px] font-bold">3</div>
+                    <span className="text-[14px] font-bold text-ink">CBAM 비용 시뮬레이션</span>
+                    <span className="text-[12px] text-muted2">2026–2034 연도별 비용 경로</span>
+                    {+finalSaving > 0 && (
+                      <span className="ml-auto text-[12px] font-semibold text-emerald-600">실측 제출 시 2034년 연 {finalSaving}억 원 절감</span>
+                    )}
+                  </div>
+
+                  {/* Sliders */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-[11px] text-muted2">연간 수출량</span>
+                        <span className="font-mono text-[12px] font-bold text-ink">{simVolume.toLocaleString()}톤</span>
+                      </div>
+                      <input type="range" min={500} max={10000} step={100} value={simVolume} onChange={e => setSimVolume(Number(e.target.value))}
+                        className="w-full h-1.5 bg-surface2 rounded-full appearance-none cursor-pointer accent-ink" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-[11px] text-muted2">환율</span>
+                        <span className="font-mono text-[12px] font-bold text-ink">₩{simFx.toLocaleString()}/€</span>
+                      </div>
+                      <input type="range" min={1200} max={1700} step={10} value={simFx} onChange={e => setSimFx(Number(e.target.value))}
+                        className="w-full h-1.5 bg-surface2 rounded-full appearance-none cursor-pointer accent-ink" />
+                    </div>
+                  </div>
+
+                  {/* Chart */}
+                  <div className="bg-surface rounded-card border border-border p-5 mb-4">
+                    <ResponsiveContainer width="100%" height={260}>
+                      <AreaChart data={costData} margin={{ top: 10, right: 20, bottom: 5, left: 0 }}>
+                        <defs>
+                          <linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                        <XAxis dataKey="year" tick={{ fontSize: 11, fontFamily: 'JetBrains Mono', fill: '#71717A' }} axisLine={{ stroke: '#e5e7eb' }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fontFamily: 'JetBrains Mono', fill: '#a1a1aa' }} axisLine={false} tickLine={false} unit="억" />
+                        <Tooltip contentStyle={{ fontSize: 12, fontFamily: 'JetBrains Mono', borderRadius: 8, border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                          formatter={(v: any) => [`${Number(v).toFixed(1)}억 원`]} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} iconType="circle" iconSize={8} />
+                        <Area type="monotone" dataKey="실측 제출" stroke="#10b981" strokeWidth={2.5} fill="url(#gradActual)" dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} />
+                        <Line type="monotone" dataKey="EU 기본값" stroke="#ef4444" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, fill: '#ef4444' }} />
+                        <Line type="monotone" dataKey="벤치마크 달성" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="3 3" dot={{ r: 3, fill: '#3b82f6' }} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Table */}
+                  <div className="bg-surface rounded-card border border-border overflow-hidden mb-4">
+                    <table className="w-full text-[11px]">
+                      <thead>
+                        <tr className="border-b-2 border-border bg-white">
+                          <th className="text-left py-2.5 px-3 font-semibold text-muted2">연도</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-muted2">폐지율</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-emerald-600">실측 제출</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-red-600">EU 기본값</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-blue-600">벤치마크</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {costData.map((row, i) => (
+                          <motion.tr key={row.year} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
+                            className="border-b border-border hover:bg-white/60 transition-colors">
+                            <td className="py-2 px-3 font-mono font-semibold text-ink">{row.year}</td>
+                            <td className="py-2 px-3 font-mono text-muted3">{row.phaseIn.toFixed(1)}%</td>
+                            <td className="py-2 px-3 font-mono text-emerald-600 font-medium">{row['실측 제출'].toFixed(1)}억</td>
+                            <td className="py-2 px-3 font-mono text-red-600">{row['EU 기본값'].toFixed(1)}억</td>
+                            <td className="py-2 px-3 font-mono text-blue-600">{row['벤치마크 달성'].toFixed(1)}억</td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Comparison */}
+                  <div className="bg-surface rounded-card border border-border p-5">
+                    <div className="text-[13px] font-bold text-ink mb-4">2034년 기준 — 기본값 vs 실측 비용 비교</div>
+                    <div className="grid grid-cols-3 text-center gap-4">
+                      <div>
+                        <div className="font-mono text-[28px] font-black text-red-600">{costData[costData.length - 1]['EU 기본값'].toFixed(1)}억</div>
+                        <div className="text-[11px] text-muted2 mt-1">기본값 적용 시</div>
+                      </div>
+                      <div>
+                        <div className="font-mono text-[28px] font-black text-emerald-600">{costData[costData.length - 1]['실측 제출'].toFixed(1)}억</div>
+                        <div className="text-[11px] text-muted2 mt-1">실측 제출 시</div>
+                      </div>
+                      <div>
+                        <div className="font-mono text-[28px] font-black text-ink">↓{finalSaving}억</div>
+                        <div className="text-[11px] text-muted2 mt-1">연간 절감액</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="mt-4 font-mono text-[10px] text-muted3 flex gap-3">
+          <span>CBAM Reg. 2023/956</span><span>·</span>
+          <span>Phase-in: 2026(2.5%) → 2034(100%)</span><span>·</span>
+          <span>EU ETS 기준: €87.5/tCO₂</span><span>·</span>
+          <span>SHA-256 on-chain</span>
+        </div>
+      </motion.div>
+    </section>
+  )
+}

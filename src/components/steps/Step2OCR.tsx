@@ -97,7 +97,7 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
                   <ScanText size={14} /> OCR 추출 실행
                 </button>
                 <button onClick={() => { setPhase('done'); setVisibleCount(RESULTS.length); setElapsed(4.2) }}
-                  className="px-4 py-2.5 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 transition-colors">
+                  className="px-4 py-2.5 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 hover:text-ink hover:border-border2 transition-all">
                   결과 바로보기
                 </button>
               </div>

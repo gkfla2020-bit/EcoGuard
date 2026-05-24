@@ -101,7 +101,7 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
                   <Scale size={14} /> 규제 심사 실행
                 </button>
                 <button onClick={() => { setPhase('done'); setVisibleCount(RULES.length); setElapsed(5.9) }}
-                  className="px-4 py-2.5 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 transition-colors">
+                  className="px-4 py-2.5 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 hover:text-ink hover:border-border2 transition-all">
                   결과 바로보기
                 </button>
               </div>

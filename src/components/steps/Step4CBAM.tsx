@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, ReferenceLine, ReferenceDot } from 'recharts'
 import { Lock, CheckCircle2, XCircle, AlertCircle, BarChart3, ArrowRight, Shield } from 'lucide-react'
 import PhaseLoader from '../shared/PhaseLoader'
 import type { Phase } from '../shared/PhaseLoader'
@@ -52,7 +52,19 @@ export default function Step4CBAM() {
   const [tamperResult, setTamperResult] = useState<{ match: boolean; msg: string } | null>(null)
   const [simVolume, setSimVolume] = useState(VOLUME)
   const [simFx, setSimFx] = useState(FX)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  // Gaussian curve data for Recharts
+  const gaussData = (() => {
+    const s = SECTOR
+    const xMin = Math.max(0, s.mean - 3.5 * s.std)
+    const xMax = s.mean + 3.5 * s.std
+    const gauss = (x: number) => Math.exp(-0.5 * ((x - s.mean) / s.std) ** 2)
+    const points = []
+    for (let i = 0; i <= 80; i++) {
+      const x = xMin + (xMax - xMin) * i / 80
+      points.push({ x: parseFloat(x.toFixed(2)), density: parseFloat(gauss(x).toFixed(4)) })
+    }
+    return points
+  })()
 
   // Quality score checks
   const checks: { pass: boolean; msg: string }[] = [
@@ -96,75 +108,8 @@ export default function Step4CBAM() {
     }
   }, [stage])
 
-  // Draw Gaussian
-  const drawGaussian = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas || stage === 'scoring') return
-    const s = SECTOR
-    const dpr = window.devicePixelRatio || 1
-    const W = 600, H = 130
-    canvas.width = W * dpr
-    canvas.height = H * dpr
-    canvas.style.width = '100%'
-    canvas.style.height = `${H}px`
-    const ctx = canvas.getContext('2d')!
-    ctx.scale(dpr, dpr)
-    ctx.clearRect(0, 0, W, H)
-
-    const pad = { l: 35, r: 15, t: 12, b: 24 }
-    const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b
-    const xMin = Math.max(0, s.mean - 4 * s.std), xMax = s.mean + 4 * s.std
-    const toX = (v: number) => pad.l + ((v - xMin) / (xMax - xMin)) * cW
-    const gauss = (x: number) => Math.exp(-0.5 * ((x - s.mean) / s.std) ** 2) / (s.std * Math.sqrt(2 * Math.PI))
-    const yMax = gauss(s.mean) * 1.15
-    const toY = (v: number) => pad.t + cH - (v / yMax) * cH
-
-    // ±2σ zone
-    ctx.fillStyle = 'rgba(16,185,129,0.06)'
-    ctx.fillRect(toX(s.mean - 2 * s.std), pad.t, toX(s.mean + 2 * s.std) - toX(s.mean - 2 * s.std), cH)
-
-    // Curve fill
-    ctx.beginPath()
-    ctx.moveTo(toX(xMin), toY(0))
-    for (let i = 0; i <= 200; i++) { const x = xMin + (xMax - xMin) * i / 200; ctx.lineTo(toX(x), toY(gauss(x))) }
-    ctx.lineTo(toX(xMax), toY(0))
-    ctx.fillStyle = 'rgba(0,0,0,0.025)'
-    ctx.fill()
-
-    // Curve stroke
-    ctx.beginPath()
-    for (let i = 0; i <= 200; i++) { const x = xMin + (xMax - xMin) * i / 200; i === 0 ? ctx.moveTo(toX(x), toY(gauss(x))) : ctx.lineTo(toX(x), toY(gauss(x))) }
-    ctx.strokeStyle = '#525252'
-    ctx.lineWidth = 1.5
-    ctx.stroke()
-
-    // EU default
-    ctx.beginPath(); ctx.setLineDash([5, 3]); ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 1.2
-    ctx.moveTo(toX(s.euDefault), pad.t); ctx.lineTo(toX(s.euDefault), pad.t + cH); ctx.stroke(); ctx.setLineDash([])
-    ctx.fillStyle = '#DC2626'; ctx.font = '10px Inter, sans-serif'
-    ctx.fillText(`EU Default ${s.euDefault}`, toX(s.euDefault) + 3, pad.t + 11)
-
-    // Benchmark
-    ctx.beginPath(); ctx.setLineDash([3, 3]); ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1
-    ctx.moveTo(toX(s.benchmark), pad.t); ctx.lineTo(toX(s.benchmark), pad.t + cH); ctx.stroke(); ctx.setLineDash([])
-    ctx.fillStyle = '#3b82f6'; ctx.font = '9px Inter, sans-serif'
-    ctx.fillText(`BM ${s.benchmark}`, toX(s.benchmark) + 3, pad.t + cH - 3)
-
-    // User marker
-    ctx.beginPath(); ctx.fillStyle = '#10b981'
-    ctx.arc(toX(EF), toY(gauss(EF)), 6, 0, Math.PI * 2); ctx.fill()
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke()
-    ctx.fillStyle = '#0A0A0A'; ctx.font = '600 11px Inter, sans-serif'
-    ctx.fillText(`Your: ${EF}`, toX(EF) + 9, toY(gauss(EF)) - 3)
-
-    // X axis
-    ctx.beginPath(); ctx.strokeStyle = '#E4E4E7'; ctx.lineWidth = 1
-    ctx.moveTo(pad.l, pad.t + cH); ctx.lineTo(pad.l + cW, pad.t + cH); ctx.stroke()
-    ctx.fillStyle = '#A1A1AA'; ctx.font = '10px JetBrains Mono, monospace'
-    for (let i = 0; i <= 5; i++) { const v = xMin + (xMax - xMin) * i / 5; ctx.fillText(v.toFixed(1), toX(v) - 10, pad.t + cH + 14) }
-  }, [stage])
-
-  useEffect(() => { drawGaussian() }, [drawGaussian])
+  // Gaussian density at user's EF value for ReferenceDot
+  const userDensity = Math.exp(-0.5 * ((EF - SECTOR.mean) / SECTOR.std) ** 2)
 
   // Simulation data
   const costData = YEARS.map((y, i) => {
@@ -229,11 +174,48 @@ export default function Step4CBAM() {
                       ))}
                     </div>
                   </div>
-                  {/* Gaussian */}
+                  {/* Gaussian distribution — Recharts */}
                   <div className="bg-surface rounded-card border border-border p-4">
-                    <div className="text-[11px] font-semibold text-muted2 mb-2">업종 배출계수 분포 (Palm Oil CPO)</div>
-                    <canvas ref={canvasRef} />
-                    <div className="text-[9px] text-muted3 text-center mt-1">μ={SECTOR.mean} · σ={SECTOR.std} · 초록점=본건(3.2) · 빨간선=EU기본값(4.5) · 파란선=벤치마크(1.8)</div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[12px] font-semibold text-ink">업종 배출계수 정규분포</div>
+                      <div className="flex items-center gap-4 text-[10px] text-muted3">
+                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" /> 본건</span>
+                        <span className="flex items-center gap-1.5"><span className="w-4 h-0 inline-block border-t-[2px] border-dashed border-red-500" /> EU 기본값</span>
+                        <span className="flex items-center gap-1.5"><span className="w-4 h-0 inline-block border-t-[2px] border-dashed border-blue-500" /> 벤치마크</span>
+                      </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <AreaChart data={gaussData} margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+                        <defs>
+                          <linearGradient id="gaussGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3f3f46" stopOpacity={0.12} />
+                            <stop offset="100%" stopColor="#3f3f46" stopOpacity={0.01} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+                        <XAxis
+                          dataKey="x" type="number"
+                          domain={['dataMin', 'dataMax']}
+                          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono', fill: '#71717A' }}
+                          axisLine={{ stroke: '#d4d4d8' }}
+                          tickLine={{ stroke: '#d4d4d8' }}
+                          label={{ value: 'tCO₂ / t product', position: 'bottom', offset: 0, fontSize: 10, fill: '#a1a1aa' }}
+                        />
+                        <YAxis hide domain={[0, 1.1]} />
+                        <Tooltip
+                          contentStyle={{ fontSize: 11, fontFamily: 'JetBrains Mono', borderRadius: 8, border: '1px solid #e5e7eb' }}
+                          formatter={(v: any) => [`${Number(v).toFixed(3)}`, '확률밀도']}
+                          labelFormatter={(l) => `${l} tCO₂/t`}
+                        />
+                        <Area type="monotone" dataKey="density" stroke="#3f3f46" strokeWidth={2.5} fill="url(#gaussGrad)" dot={false} animationDuration={1200} />
+                        <ReferenceLine x={SECTOR.euDefault} stroke="#dc2626" strokeDasharray="6 4" strokeWidth={2} label={{ value: `EU 기본값 (${SECTOR.euDefault})`, position: 'top', fontSize: 11, fill: '#dc2626', fontWeight: 600 }} />
+                        <ReferenceLine x={SECTOR.benchmark} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} label={{ value: `벤치마크 (${SECTOR.benchmark})`, position: 'insideBottomRight', fontSize: 10, fill: '#3b82f6' }} />
+                        <ReferenceDot x={EF} y={userDensity} r={8} fill="#10b981" stroke="#fff" strokeWidth={3} label={{ value: `본건: ${EF}`, position: 'top', fontSize: 12, fontWeight: 700, fill: '#0a0a0a', offset: 12 }} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                    <div className="text-[10px] text-muted3 text-center mt-1">
+                      Palm Oil (CPO) · μ={SECTOR.mean} · σ={SECTOR.std} · 표본: ISCC 인증 업체 2,847건
+                    </div>
                   </div>
                 </motion.div>
               )}

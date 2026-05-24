@@ -128,9 +128,9 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                 </div>
                 <div className="font-mono text-[10px] text-muted3">6 tiles · 10m resolution</div>
               </div>
-              <div className="grid grid-cols-6 gap-2 mb-4">
+              <div className="grid grid-cols-6 gap-2 mb-5">
                 {YEARS.map(yr => (
-                  <div key={yr} className="h-24 rounded-lg overflow-hidden border border-border bg-neutral-100 relative">
+                  <div key={yr} className="aspect-square rounded-lg overflow-hidden border border-border bg-neutral-100 relative">
                     <img src={`/satellite/orig_${yr}.png`} alt={`${yr}`} className="w-full h-full object-cover opacity-70" />
                     <div className="absolute bottom-1 left-1/2 -translate-x-1/2">
                       <span className="bg-black/60 text-white text-[9px] font-mono px-1.5 py-0.5 rounded">{yr}</span>

@@ -548,7 +548,68 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                     <div className="text-[13px] font-semibold text-white">모든 검증 완료</div>
                     <div className="text-[11px] text-white/60 mt-0.5">5단계 파이프라인 결과를 기반으로 DDS 리포트를 생성할 수 있습니다.</div>
                   </div>
-                  <button className="px-5 py-2.5 bg-white text-ink rounded-lg text-[12px] font-semibold hover:bg-white/90 transition-colors active:scale-[0.98]">
+                  <button
+                    onClick={() => {
+                      const report = `EUDR Due Diligence Statement (DDS) Report
+Generated: ${new Date().toISOString().slice(0,10)}
+Case ID: ECO-${new Date().toISOString().slice(2,10).replace(/-/g,'')}-001
+
+1. OPERATOR INFORMATION
+   Importer: UniHana Trading GmbH (EU)
+   Exporter: PT. Sawit Kalimantan Utama (Indonesia)
+
+2. PRODUCT INFORMATION
+   Product: Crude Palm Oil (CPO)
+   HS Code: 1511.10.00
+   Quantity: 2,400 MT
+   Origin: Central Kalimantan, Indonesia (2.50S, 111.79E)
+   Certification: ISCC EU Plus (exp. 2025-12)
+
+3. GEOLOCATION DATA
+   GPS Polygon: 4.2 ha coverage
+   Coordinates: 2.50S, 111.79E
+   Sentinel-2 L2A imagery: 2019-2024
+
+4. RISK ASSESSMENT
+   Forest Cover (2019): 78%
+   Forest Cover (2024): 47%
+   Change: -31%p (HIGH RISK)
+   NDVI (2020): 0.71 → (2024): 0.50
+   EUDR Cutoff Date: 2020-12-31
+   Verdict: Significant deforestation detected post-cutoff
+
+5. CBAM DECLARATION
+   Emission Factor: 3.2 tCO2/t (actual measurement)
+   EU Default: 4.5 tCO2/t
+   Annual Savings: ~7.3B KRW (2034 basis)
+   Quality Score: 85/100
+
+6. COMPLIANCE STATUS
+   EUDR Art.3 (Deforestation): WARNING - Further verification needed
+   EUDR Art.4 (DDS): PASS
+   EUDR Art.9 (Geolocation): PASS
+   EUDR Art.10 (Cutoff): WARNING
+   EUDR Art.12 (Legality): PASS
+   CBAM Art.35: PASS
+   CSDDD Art.7-8: PASS
+
+7. RECOMMENDATION
+   Additional field verification recommended.
+   Alternative supply source evaluation advised.
+
+---
+EcoTrade Compliance Platform v2.0
+Team UniHana`
+                      const blob = new Blob([report], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `DDS_Report_${new Date().toISOString().slice(0,10)}.txt`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }}
+                    className="px-5 py-2.5 bg-white text-ink rounded-lg text-[12px] font-semibold hover:bg-white/90 transition-colors active:scale-[0.98]"
+                  >
                     DDS 리포트 생성
                   </button>
                 </div>

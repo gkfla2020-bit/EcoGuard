@@ -102,7 +102,7 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
   // Auto-advance to simulation
   useEffect(() => {
     if (stage === 'blockchain') {
-      const t = setTimeout(() => setStage('simulation'), 2500)
+      const t = setTimeout(() => setStage('simulation'), 3500)
       return () => clearTimeout(t)
     }
   }, [stage])

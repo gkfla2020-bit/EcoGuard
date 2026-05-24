@@ -1,8 +1,7 @@
-import { useState, useRef, useEffect, lazy, Suspense } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, Upload, ScanText, Scale, Calculator, Satellite, ArrowRight } from 'lucide-react'
-
-const TerrainView = lazy(() => import('./components/shared/TerrainView'))
+import TerrainView from './components/shared/TerrainView'
 import Step1Intake from './components/steps/Step1Intake'
 import Step2OCR from './components/steps/Step2OCR'
 import Step3Regulation from './components/steps/Step3Regulation'
@@ -96,12 +95,7 @@ export default function App() {
           transition={{ duration: 1.2, delay: 0.3 }}
           className="flex-1 relative"
         >
-          <Suspense fallback={<div className="w-full h-full bg-neutral-900" />}>
-            <TerrainView />
-          </Suspense>
-          <div className="absolute bottom-4 right-4 font-mono text-[9px] text-white/40">
-            Sentinel-2 · Central Kalimantan · Live Preview
-          </div>
+          <TerrainView />
         </motion.div>
       </div>
     )

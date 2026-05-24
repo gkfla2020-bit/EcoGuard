@@ -121,24 +121,15 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
               transition={{ duration: 0.2 }}
               className="border border-border rounded-card bg-white p-6"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <div>
                   <div className="text-[13px] font-semibold text-ink">위성 데이터 준비됨</div>
                   <div className="text-[11px] text-muted2 mt-0.5">Sentinel-2 L2A · 2019–2024 · Central Kalimantan (2.50°S, 111.79°E)</div>
                 </div>
                 <div className="font-mono text-[10px] text-muted3">6 tiles · 10m resolution</div>
               </div>
-              <div className="grid grid-cols-6 gap-2 mb-5">
-                {YEARS.map(yr => (
-                  <div key={yr} className="aspect-square rounded-lg overflow-hidden border border-border bg-neutral-100">
-                    <img src={`/satellite/orig_${yr}.png`} alt={`${yr}`} className="w-full h-full object-cover opacity-70" />
-                    <div className="relative -mt-5 text-center">
-                      <span className="bg-black/60 text-white text-[9px] font-mono px-1.5 py-0.5 rounded">{yr}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
+              {/* 버튼 먼저 */}
+              <div className="flex gap-2 mb-4">
                 <button
                   onClick={runAnalysis}
                   className="flex-1 py-3 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
@@ -152,6 +143,15 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                 >
                   결과 바로보기
                 </button>
+              </div>
+              {/* 썸네일 미리보기 — 작게 */}
+              <div className="grid grid-cols-6 gap-1.5">
+                {YEARS.map(yr => (
+                  <div key={yr} className="h-16 rounded overflow-hidden border border-border bg-neutral-100 relative">
+                    <img src={`/satellite/orig_${yr}.png`} alt={`${yr}`} className="w-full h-full object-cover opacity-60" />
+                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[8px] font-mono px-1 rounded">{yr}</span>
+                  </div>
+                ))}
               </div>
             </motion.div>
           )}

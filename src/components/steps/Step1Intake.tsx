@@ -226,9 +226,10 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
                 <button
                   onClick={startValidation}
                   disabled={!allRequiredDone}
+                  style={allRequiredDone ? { backgroundColor: '#0A0A0A', color: '#fff' } : {}}
                   className={`px-5 py-2.5 rounded-lg text-[13px] font-semibold transition-all active:scale-[0.98] ${
                     allRequiredDone
-                      ? 'bg-ink text-white hover:bg-ink2 shadow-sm'
+                      ? 'hover:opacity-90'
                       : 'bg-surface2 text-muted3 cursor-not-allowed'
                   }`}
                 >

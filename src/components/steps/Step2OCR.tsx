@@ -93,7 +93,7 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
               <p className="text-[12px] text-muted2 mb-4">서류에서 핵심 정보를 AI가 읽어냅니다. 5개 문서 (12 pages)</p>
               <div className="flex gap-2">
                 <button onClick={() => { startTime.current = Date.now(); setPhase('loading') }}
-                  className="px-5 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center gap-2">
+                  style={{ backgroundColor: "#0A0A0A", color: "#fff" }} className="px-5 py-2.5 rounded-lg text-[13px] font-semibold hover:opacity-90 transition-all active:scale-[0.98] flex items-center gap-2">
                   <ScanText size={14} /> OCR 추출 실행
                 </button>
                 <button onClick={() => { setPhase('done'); setVisibleCount(RESULTS.length); setElapsed(4.2) }}

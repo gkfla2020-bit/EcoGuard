@@ -97,7 +97,7 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
               <p className="text-[12px] text-muted2 mb-4">EUDR · CBAM · CSDDD {RULES.length}개 조항 자동 대조. 위반 시 수입 금지 또는 과징금.</p>
               <div className="flex gap-2">
                 <button onClick={() => { startTime.current = Date.now(); setPhase('loading') }}
-                  className="px-5 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center gap-2">
+                  style={{ backgroundColor: "#0A0A0A", color: "#fff" }} className="px-5 py-2.5 rounded-lg text-[13px] font-semibold hover:opacity-90 transition-all active:scale-[0.98] flex items-center gap-2">
                   <Scale size={14} /> 규제 심사 실행
                 </button>
                 <button onClick={() => { setPhase('done'); setVisibleCount(RULES.length); setElapsed(5.9) }}

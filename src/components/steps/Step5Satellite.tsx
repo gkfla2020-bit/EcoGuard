@@ -128,7 +128,7 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
               <div className="flex gap-2 mb-4">
                 <button
                   onClick={runAnalysis}
-                  className="flex-1 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{ backgroundColor: "#0A0A0A", color: "#fff" }} className="flex-1 py-2.5 rounded-lg text-[13px] font-semibold hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Satellite size={15} />
                   CNN 분석 실행
@@ -163,7 +163,8 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
               <div className="flex gap-2">
                 <button
                   onClick={runAnalysis}
-                  className="flex-1 py-3 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{ backgroundColor: "#0A0A0A", color: "#fff" }}
+                  className="flex-1 py-3 rounded-lg text-[13px] font-semibold hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Satellite size={15} />
                   CNN 분석 실행

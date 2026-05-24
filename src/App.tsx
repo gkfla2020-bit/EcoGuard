@@ -177,7 +177,8 @@ export default function App() {
           <div className="px-4 pb-3">
             <button
               onClick={() => navigateStep((step + 1) as StepId)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-ink text-white rounded-lg text-[12px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98]"
+              style={{ backgroundColor: '#0A0A0A', color: '#fff' }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold hover:opacity-90 transition-all active:scale-[0.98]"
             >
               {STEPS.find(s => s.id === step + 1)?.label}
               <ArrowRight size={13} />

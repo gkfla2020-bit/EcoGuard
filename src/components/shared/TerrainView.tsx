@@ -1,6 +1,6 @@
-import { useRef, useMemo } from 'react'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { useTexture, Environment } from '@react-three/drei'
+import { useRef, useMemo, Suspense } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 
 function Terrain() {
@@ -154,14 +154,17 @@ export default function TerrainView() {
     <div className="w-full h-full">
       <Canvas
         camera={{ position: [0, 4, 6], fov: 50, near: 0.1, far: 50 }}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.8 }}
+        gl={{ antialias: true }}
+        onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.8 }}
         style={{ background: '#080808' }}
       >
         <fog attach="fog" args={['#080808', 6, 16]} />
         <ambientLight intensity={0.3} />
         <directionalLight position={[5, 8, 3]} intensity={1.5} color="#fff5e0" />
         <directionalLight position={[-3, 4, -5]} intensity={0.3} color="#b0c4ff" />
-        <Terrain />
+        <Suspense fallback={null}>
+          <Terrain />
+        </Suspense>
         <GridOverlay />
         <ScanLine />
         <DataPoints />

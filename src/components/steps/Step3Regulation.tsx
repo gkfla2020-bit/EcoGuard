@@ -4,7 +4,7 @@ import { Scale, BookOpen, ShieldCheck, ShieldAlert, ShieldX, ChevronDown, FileWa
 import PhaseLoader from '../shared/PhaseLoader'
 import type { Phase } from '../shared/PhaseLoader'
 
-type RuleStatus = 'pass' | 'warn' | 'fail'
+type RuleStatus = 'pass' | 'warn' | 'fail' | 'pending'
 
 type Rule = {
   reg: string
@@ -24,10 +24,10 @@ const TRIAGE_PHASES: Phase[] = [
 ]
 
 const RULES: Rule[] = [
-  { reg: 'EUDR', article: 'Art. 3(1)', desc: '산림전용 금지 의무', status: 'warn', detail: '위성 CNN 분석 결과 2020 이후 산림 31%p 감소 감지. EUDR cutoff date 이후 산림전용 의심.', evidence: 'Step 5 CNN Segmentation + NDVI 시계열' },
+  { reg: 'EUDR', article: 'Art. 3(1)', desc: '산림전용 금지 의무', status: 'pending', detail: '위성 환경 검증(Step 5) 완료 후 판정 가능. CNN Segmentation + NDVI 분석 필요.', evidence: '→ Step 5 위성 검증 결과 대기' },
   { reg: 'EUDR', article: 'Art. 4(2)', desc: 'DDS 실사 보고서 제출', status: 'pass', detail: 'DDS 자체 실사 보고서 제출 확인. GPS polygon 포함, 공급망 정보 기재 적합.', evidence: 'DDS_SelfDeclaration.pdf (p.1-8)' },
   { reg: 'EUDR', article: 'Art. 9(1)(d)', desc: '지리적 좌표 (GPS polygon)', status: 'pass', detail: '원산지 GPS 좌표: 2.50°S, 111.79°E. GeoJSON polygon 4.2ha 범위 일치.', evidence: 'DDS Report p.3 + GPS polygon.geojson' },
-  { reg: 'EUDR', article: 'Art. 10(1)', desc: 'Cutoff date 이후 산림전용 없음', status: 'warn', detail: 'NDVI 2020: 0.71 → 2024: 0.50 (△-0.21). CNN 판정: High Risk. 추가 현장 검증 권장.', evidence: 'NDVI 시계열 + Grad-CAM overlay' },
+  { reg: 'EUDR', article: 'Art. 10(1)', desc: 'Cutoff date 이후 산림전용 없음', status: 'pending', detail: '2020-12-31 이후 산림전용 여부는 위성 시계열 분석으로 판정. Step 5 완료 필요.', evidence: '→ Step 5 NDVI 시계열 대기' },
   { reg: 'EUDR', article: 'Art. 12', desc: '합법성 (현지법 준수)', status: 'pass', detail: '인도네시아 산림법 (PP 23/2021) 기반 HGU 허가 확인. ISCC EU 인증 유효.', evidence: 'Origin Cert + ISCC-ID-PKS-2024-0847' },
   { reg: 'CBAM', article: 'Art. 35', desc: '내재 탄소배출량 보고', status: 'pass', detail: 'Scope 1+2 합산: 3.2 tCO₂/t. ISCC 기준 배출계수 적용. 보고 포맷 적합.', evidence: 'CBAM Declaration (Step 4)' },
   { reg: 'CBAM', article: 'Annex III', desc: '간접 배출 (Scope 2) 보고', status: 'pass', detail: '전력 소비 기반 간접 배출: 0.35 tCO₂/t. 인도네시아 전력그리드 계수 적용.', evidence: 'Emission calc worksheet' },
@@ -73,6 +73,7 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
   const StatusIcon = ({ status }: { status: RuleStatus }) => {
     if (status === 'pass') return <ShieldCheck size={16} className="text-emerald-600" />
     if (status === 'warn') return <ShieldAlert size={16} className="text-amber-600" />
+    if (status === 'pending') return <ShieldAlert size={16} className="text-muted3" />
     return <ShieldX size={16} className="text-red-600" />
   }
 
@@ -188,8 +189,9 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
                         <span className="flex-1 text-[13px] text-ink">{rule.desc}</span>
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase ${
                           rule.status === 'pass' ? 'bg-emerald-100 text-emerald-700' :
-                          rule.status === 'warn' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                        }`}>{rule.status}</span>
+                          rule.status === 'warn' ? 'bg-amber-100 text-amber-700' :
+                          rule.status === 'pending' ? 'bg-surface2 text-muted3' : 'bg-red-100 text-red-700'
+                        }`}>{rule.status === 'pending' ? '대기' : rule.status}</span>
                         <ChevronDown size={14} className={`text-muted3 transition-transform ${expanded === i ? 'rotate-180' : ''}`} />
                       </div>
                       <AnimatePresence>
@@ -228,9 +230,9 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
                 >
                   <ShieldAlert size={24} className="text-amber-600 shrink-0" />
                   <div>
-                    <div className="text-[13px] font-semibold text-amber-800">종합 판정: 조건부 적합 (Conditional Pass)</div>
+                    <div className="text-[13px] font-semibold text-amber-800">종합 판정: 서류 적합 · 위성 검증 대기</div>
                     <div className="text-[11px] text-amber-700 mt-0.5">
-                      EUDR Art.3 및 Art.10 관련 위성 분석 추가 검증 필요. Step 5 CNN 결과와 교차 확인 권장.
+                      서류 기반 7개 조항 PASS. EUDR Art.3, Art.10은 위성 환경 검증(Step 5) 완료 후 최종 판정.
                     </div>
                   </div>
                 </motion.div>

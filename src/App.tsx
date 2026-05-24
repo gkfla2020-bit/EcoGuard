@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, Upload, ScanText, Scale, Calculator, Satellite, ArrowRight } from 'lucide-react'
+
+const TerrainView = lazy(() => import('./components/shared/TerrainView'))
 import Step1Intake from './components/steps/Step1Intake'
 import Step2OCR from './components/steps/Step2OCR'
 import Step3Regulation from './components/steps/Step3Regulation'
@@ -55,13 +57,14 @@ export default function App() {
   // ─── Landing Screen ───────────────────────────────────────────────
   if (!started) {
     return (
-      <div className="h-screen bg-white overflow-y-auto flex items-center justify-center p-8">
+      <div className="h-screen flex overflow-hidden">
+        {/* Left — text */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-[420px] shrink-0 flex flex-col justify-center px-12 bg-white"
         >
-          {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
             <svg width={24} height={24} viewBox="0 0 20 20" fill="none">
               <circle cx="10" cy="10" r="9" stroke="#0A0A0A" strokeWidth="1.5" />
@@ -70,15 +73,12 @@ export default function App() {
             </svg>
             <span className="font-heading font-semibold text-[16px] text-ink tracking-tight">EcoTrade</span>
           </div>
-
-          {/* Title */}
-          <h1 className="font-heading text-[32px] font-bold text-ink tracking-tight leading-[1.15] mb-3">
+          <h1 className="font-heading text-[28px] font-bold text-ink tracking-tight leading-[1.2] mb-3">
             EU 환경 규제<br />통합 컴플라이언스
           </h1>
-          <p className="text-[14px] text-muted2 leading-relaxed mb-5 max-w-[380px]">
+          <p className="text-[13px] text-muted2 leading-relaxed mb-5">
             EUDR 산림전용 검증, CBAM 탄소비용 산정, CSDDD 공급망 실사를 하나의 파이프라인으로.
           </p>
-
           <button
             onClick={() => setStarted(true)}
             style={{ backgroundColor: '#0A0A0A', color: '#fff' }}
@@ -86,8 +86,22 @@ export default function App() {
           >
             새 케이스 시작
           </button>
+          <div className="mt-8 font-mono text-[10px] text-muted3">EUDR · CBAM · CSDDD · Team 유니하나 · v2.0</div>
+        </motion.div>
 
-          <div className="mt-6 font-mono text-[10px] text-muted3">EUDR · CBAM · CSDDD · Team 유니하나 · v2.0</div>
+        {/* Right — 3D terrain */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 0.3 }}
+          className="flex-1 relative"
+        >
+          <Suspense fallback={<div className="w-full h-full bg-neutral-900" />}>
+            <TerrainView />
+          </Suspense>
+          <div className="absolute bottom-4 right-4 font-mono text-[9px] text-white/40">
+            Sentinel-2 · Central Kalimantan · Live Preview
+          </div>
         </motion.div>
       </div>
     )

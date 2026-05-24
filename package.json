@@ -10,7 +10,10 @@
     "deploy": "vite build && gh-pages -d dist"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@types/leaflet": "^1.9.21",
+    "@types/three": "^0.184.1",
     "chart.js": "^4.5.1",
     "framer-motion": "^11.18.2",
     "leaflet": "^1.9.4",
@@ -18,7 +21,9 @@
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^3.8.1"
+    "react-is": "^19.2.6",
+    "recharts": "^3.8.1",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",

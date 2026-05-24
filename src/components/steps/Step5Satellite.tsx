@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Satellite, Loader2, ScanSearch, BarChart3, FileCheck, AlertTriangle, MapPin, Play, Pause } from 'lucide-react'
+import { Satellite, Loader2, BarChart3, FileCheck, AlertTriangle, MapPin, Play, Pause } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ReferenceLine, Tooltip, ResponsiveContainer } from 'recharts'
-import PhaseLoader from '../shared/PhaseLoader'
-import type { Phase } from '../shared/PhaseLoader'
 
 type View = 'seg' | 'cam'
 
@@ -26,16 +24,10 @@ const NDVI_DATA = [
   { year: '2024', ndvi: 0.50, min: 0.41, max: 0.60 },
 ]
 
-const ANALYSIS_PHASES: Phase[] = [
-  { id: 'connect', label: 'Sentinel-2 Copernicus API 연결 중...', icon: Satellite, duration: 1200 },
-  { id: 'download', label: '위성 타일 다운로드 (Band 4, 8, 11)...', icon: Loader2, duration: 1800 },
-  { id: 'segment', label: 'U-Net CNN Segmentation 추론 중...', icon: ScanSearch, duration: 2200 },
-  { id: 'gradcam', label: 'Grad-CAM Saliency Map 생성 중...', icon: BarChart3, duration: 1500 },
-  { id: 'ndvi', label: 'NDVI 시계열 계산 (NIR−Red)/(NIR+Red)...', icon: FileCheck, duration: 1000 },
-]
 
 export default function Step5Satellite({ skipLoading = false }: { skipLoading?: boolean }) {
-  const [appPhase, setAppPhase] = useState<'loading' | 'done'>(skipLoading ? 'done' : 'loading')
+  const [appPhase, setAppPhase] = useState<'idle' | 'analyzing' | 'done'>(skipLoading ? 'done' : 'idle')
+  const [analysisProgress, setAnalysisProgress] = useState(0)
   const [year, setYear] = useState<number>(2020)
   const [view, setView] = useState<View>('seg')
   const [playing, setPlaying] = useState(false)
@@ -95,6 +87,22 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
     setPlaying(true)
   }
 
+  const runAnalysis = () => {
+    setAppPhase('analyzing')
+    setAnalysisProgress(0)
+    let p = 0
+    const timer = setInterval(() => {
+      p += 2 + Math.random() * 4
+      if (p >= 100) {
+        setAnalysisProgress(100)
+        clearInterval(timer)
+        setTimeout(() => setAppPhase('done'), 300)
+      } else {
+        setAnalysisProgress(Math.min(p, 99))
+      }
+    }, 80)
+  }
+
   return (
     <section>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -106,19 +114,62 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
         </div>
 
         <AnimatePresence mode="wait">
-          {appPhase === 'loading' && (
+          {appPhase === 'idle' && (
             <motion.div
-              key="loading"
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.3 }}
-              className="border border-border rounded-card p-6 bg-white"
+              key="idle"
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="border border-border rounded-card bg-white p-6"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Satellite size={16} className="text-ink" />
-                <span className="text-[13px] font-semibold text-ink">위성 분석 파이프라인</span>
-                <span className="font-mono text-[10px] text-muted3 ml-auto">6 years · 12 tiles · U-Net + Grad-CAM</span>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="text-[13px] font-semibold text-ink">위성 데이터 준비됨</div>
+                  <div className="text-[11px] text-muted2 mt-0.5">Sentinel-2 L2A · 2019–2024 · Central Kalimantan (2.50°S, 111.79°E)</div>
+                </div>
+                <div className="font-mono text-[10px] text-muted3">6 tiles · 10m resolution</div>
               </div>
-              <PhaseLoader phases={ANALYSIS_PHASES} onComplete={() => setAppPhase('done')} />
+              <div className="grid grid-cols-6 gap-2 mb-5">
+                {YEARS.map(yr => (
+                  <div key={yr} className="aspect-square rounded-lg overflow-hidden border border-border bg-neutral-100">
+                    <img src={`/satellite/orig_${yr}.png`} alt={`${yr}`} className="w-full h-full object-cover opacity-70" />
+                    <div className="relative -mt-5 text-center">
+                      <span className="bg-black/60 text-white text-[9px] font-mono px-1.5 py-0.5 rounded">{yr}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={runAnalysis}
+                className="w-full py-3 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <Satellite size={15} />
+                CNN 분석 실행
+              </button>
+            </motion.div>
+          )}
+
+          {appPhase === 'analyzing' && (
+            <motion.div
+              key="analyzing"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="border border-border rounded-card bg-white p-6"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Loader2 size={16} className="text-ink animate-spin" />
+                <span className="text-[13px] font-semibold text-ink">분석 중</span>
+                <span className="font-mono text-[11px] text-muted3 ml-auto">{Math.round(analysisProgress)}%</span>
+              </div>
+              <div className="w-full h-2 bg-surface2 rounded-full overflow-hidden">
+                <div className="h-full bg-ink rounded-full transition-all duration-100" style={{ width: `${analysisProgress}%` }} />
+              </div>
+              <div className="mt-3 font-mono text-[10px] text-muted3">
+                {analysisProgress < 30 ? 'U-Net Segmentation 추론...' :
+                 analysisProgress < 60 ? 'Grad-CAM saliency map 생성...' :
+                 analysisProgress < 85 ? 'NDVI 시계열 계산...' : '결과 렌더링...'}
+              </div>
             </motion.div>
           )}
 
@@ -400,38 +451,29 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                 </div>
               </div>
 
-              {/* Alerts */}
+              {/* Analysis notes — inline, not alert boxes */}
               {visibleBars >= NDVI_DATA.length && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-4 space-y-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="mt-4 border border-border rounded-card bg-white p-4"
                 >
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="px-4 py-3 rounded-card text-[12px] border bg-amber-50 border-amber-200"
-                  >
-                    <div className="font-semibold text-amber-800 flex items-center gap-1.5 mb-0.5">
-                      <AlertTriangle size={13} />
-                      산림전용 위험 감지
+                  <div className="text-[12px] font-semibold text-ink mb-2">분석 소견</div>
+                  <div className="space-y-1.5 text-[11px] text-muted2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-red-500 mt-0.5">●</span>
+                      <span>2020–2024 산림 면적 31%p 감소 (78% → 47%). EUDR cutoff(2020-12-31) 이후 유의미한 변화 감지.</span>
                     </div>
-                    <p className="text-amber-700">2020–2024 기간 산림 면적 31%p 감소. EUDR Art.10(1) cutoff date(2020-12-31) 이후 유의미한 산림전용 진행. 현장 검증 및 추가 DDS 보완 권장.</p>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                    className="px-4 py-3 rounded-card text-[12px] border bg-blue-50 border-blue-200"
-                  >
-                    <div className="font-semibold text-blue-800 flex items-center gap-1.5 mb-0.5">
-                      <MapPin size={13} />
-                      공급망 연계 확인
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted3 mt-0.5">●</span>
+                      <span>GPS polygon(DDS p.3) — 위성 분석 영역 90% 중첩 확인. 미인증 구역 10% 존재.</span>
                     </div>
-                    <p className="text-blue-700">GPS polygon(DDS p.3)과 위성 분석 지역 일치 확인. ISCC-ID-PKS-2024-0847 인증 범위와 90% 중첩. 나머지 10% 미인증 구역 추가 확인 필요.</p>
-                  </motion.div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted3 mt-0.5">●</span>
+                      <span>NDVI 2020: 0.71 → 2024: 0.50 (Δ-29.6%). 산림 임계값(0.6) 하회 시점: 2023.</span>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 

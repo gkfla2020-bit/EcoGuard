@@ -205,9 +205,10 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                         transition={{ duration: 0.4, ease: 'easeInOut' }}
                       />
                     </AnimatePresence>
-                    {/* Year overlay */}
-                    <div className="absolute top-3 left-3 bg-black/80 text-white font-mono text-[13px] font-bold px-3 py-1.5 rounded-md backdrop-blur-sm">
-                      {year}
+                    {/* Year + acquisition metadata overlay */}
+                    <div className="absolute top-3 left-3 bg-black/80 text-white font-mono text-[11px] px-3 py-1.5 rounded-md backdrop-blur-sm">
+                      <div className="font-bold text-[13px]">{year}</div>
+                      <div className="text-[9px] text-white/60 mt-0.5">S2A · {year}-07-{12 + (year % 5)} · L2A</div>
                     </div>
                     {/* Scan line animation when transitioning */}
                     {imageTransition && (

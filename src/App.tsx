@@ -31,10 +31,20 @@ export default function App() {
 
   const navigateStep = (targetStep: StepId) => {
     setPrevDirection(targetStep > step ? 'forward' : 'back')
-    // Mark the current step as "completed" when leaving it
     completedSteps.current.add(step)
     setStep(targetStep)
   }
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      if (e.key === 'ArrowRight' && step < 5) navigateStep((step + 1) as StepId)
+      if (e.key === 'ArrowLeft' && step > 1) navigateStep((step - 1) as StepId)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [step])
 
   return (
     <div className="flex h-screen overflow-hidden">

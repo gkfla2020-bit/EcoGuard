@@ -153,7 +153,9 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
                     >
                       <div
                         onClick={() => setExpanded(i === expanded ? null : i)}
-                        className="px-5 py-3.5 flex items-center gap-4 cursor-pointer hover:bg-surface/50 transition-colors"
+                        className={`px-5 py-3.5 flex items-center gap-4 cursor-pointer transition-colors ${
+                          expanded === i ? 'bg-blue-50/60 border-l-2 border-l-blue-500 pl-[18px]' : 'hover:bg-surface/50'
+                        }`}
                       >
                         <StatusIcon status={rule.status} />
                         <span className="w-[52px] shrink-0 font-mono text-[10px] text-muted3 uppercase font-semibold">{rule.reg}</span>

@@ -210,6 +210,9 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
                                 <div className="flex items-center gap-4 text-[10px]">
                                   <span><span className="text-muted3">근거:</span> <span className="font-mono text-muted2">{rule.evidence}</span></span>
                                   <span><span className="text-muted3">위반 시:</span> <span className="font-semibold text-red-600">{rule.penalty}</span></span>
+                                  {rule.status === 'pending' && (
+                                    <span className="ml-auto text-blue-600 font-medium cursor-pointer hover:underline">Step 5에서 검증 →</span>
+                                  )}
                                 </div>
                               </div>
                             </div>

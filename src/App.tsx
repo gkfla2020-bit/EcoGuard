@@ -285,6 +285,13 @@ export default function App() {
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Keyboard hints — bottom bar */}
+        <div className="h-[28px] border-t border-border bg-surface flex items-center px-8 gap-6 text-[9px] text-muted3 font-mono shrink-0 select-none">
+          <span><kbd className="px-1 py-0.5 bg-white border border-border rounded text-[8px]">←</kbd> <kbd className="px-1 py-0.5 bg-white border border-border rounded text-[8px]">→</kbd> 단계 이동</span>
+          <span><kbd className="px-1 py-0.5 bg-white border border-border rounded text-[8px]">⌘K</kbd> 검색</span>
+          <span className="ml-auto">EcoTrade v2.0 · EUDR/CBAM/CSDDD Compliance</span>
+        </div>
       </main>
     </div>
     </>

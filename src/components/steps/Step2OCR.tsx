@@ -128,7 +128,7 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
               transition={{ duration: 0.3 }}
             >
               {/* Summary bar */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
                 <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
                   <CheckCircle2 size={14} className="text-emerald-600" />
                   <span className="text-[12px] font-medium text-emerald-800">{RESULTS.length}개 필드 추출</span>
@@ -136,6 +136,10 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
                 <div className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg">
                   <span className="text-[11px] text-muted2">평균 정확도</span>
                   <span className="font-mono text-[12px] font-bold text-ink">{avgConfidence.toFixed(1)}%</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg" title="수동 검증 없이 자동 처리된 비율">
+                  <span className="text-[11px] text-muted2">STP</span>
+                  <span className="font-mono text-[12px] font-bold text-emerald-700">{((RESULTS.length - lowConfidence.length) / RESULTS.length * 100).toFixed(0)}%</span>
                 </div>
                 {lowConfidence.length > 0 && (
                   <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">

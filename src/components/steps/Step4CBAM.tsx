@@ -229,8 +229,13 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
                         <ReferenceDot x={EF} y={userDensity} r={8} fill="#10b981" stroke="#fff" strokeWidth={3} label={{ value: `본건: ${EF}`, position: 'top', fontSize: 12, fontWeight: 700, fill: '#0a0a0a', offset: 12 }} />
                       </AreaChart>
                     </ResponsiveContainer>
-                    <div className="text-[10px] text-muted3 text-center mt-1">
-                      Palm Oil (CPO) · μ={SECTOR.mean} · σ={SECTOR.std} · 표본: ISCC 인증 업체 2,847건
+                    <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                      <div className="text-[11px] text-muted2">
+                        본 건의 배출계수 <span className="font-mono font-bold text-ink">{EF} tCO₂/t</span>은
+                        업종 평균과 동일하며, EU 기본값({SECTOR.euDefault})보다 <span className="font-semibold text-emerald-700">{((1 - EF/SECTOR.euDefault) * 100).toFixed(0)}% 낮습니다</span>.
+                        실측 제출이 유리합니다.
+                      </div>
+                      <div className="text-[9px] text-muted3 font-mono shrink-0 ml-4">n=2,847 · ISCC</div>
                     </div>
                   </div>
                 </motion.div>

@@ -36,7 +36,7 @@ const RULES: Rule[] = [
 ]
 
 export default function Step3Regulation({ skipLoading = false }: { skipLoading?: boolean }) {
-  const [phase, setPhase] = useState<'loading' | 'revealing' | 'done'>(skipLoading ? 'done' : 'loading')
+  const [phase, setPhase] = useState<'idle' | 'loading' | 'revealing' | 'done'>(skipLoading ? 'done' : 'idle')
   const [visibleCount, setVisibleCount] = useState(skipLoading ? RULES.length : 0)
   const [expanded, setExpanded] = useState<number | null>(null)
   const [filter, setFilter] = useState<RuleStatus | 'all'>('all')
@@ -87,9 +87,28 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
         </div>
 
         <AnimatePresence mode="wait">
+          {phase === 'idle' && (
+            <motion.div key="idle" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="border border-border rounded-card p-6 bg-white">
+              <div className="text-[13px] font-semibold text-ink mb-2">규제 데이터 준비됨</div>
+              <div className="text-[11px] text-muted2 mb-5">EUDR 2023/1115 · CBAM 2023/956 · CSDDD 2024/1760 — {RULES.length}개 조항 대조 예정</div>
+              <div className="flex gap-2">
+                <button onClick={() => { startTime.current = Date.now(); setPhase('loading') }}
+                  className="px-5 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center gap-2">
+                  <Scale size={14} /> 규제 심사 실행
+                </button>
+                <button onClick={() => { setPhase('done'); setVisibleCount(RULES.length); setElapsed(5.9) }}
+                  className="px-4 py-2.5 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 transition-colors">
+                  결과 바로보기
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {phase === 'loading' && (
             <motion.div
               key="loading"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
               className="border border-border rounded-card p-6 bg-white"

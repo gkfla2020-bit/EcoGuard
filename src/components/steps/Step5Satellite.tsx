@@ -138,13 +138,21 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                   </div>
                 ))}
               </div>
-              <button
-                onClick={runAnalysis}
-                className="w-full py-3 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
-              >
-                <Satellite size={15} />
-                CNN 분석 실행
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={runAnalysis}
+                  className="flex-1 py-3 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <Satellite size={15} />
+                  CNN 분석 실행
+                </button>
+                <button
+                  onClick={() => { setAppPhase('done'); setVisibleBars(NDVI_DATA.length) }}
+                  className="px-4 py-3 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 transition-colors"
+                >
+                  결과 바로보기
+                </button>
+              </div>
             </motion.div>
           )}
 

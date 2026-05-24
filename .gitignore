@@ -24,3 +24,4 @@ dist-ssr
 *.sln
 *.sw?
 public/forest_path.glb
+public/forest_small.glb

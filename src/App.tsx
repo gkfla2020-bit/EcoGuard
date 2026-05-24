@@ -97,15 +97,17 @@ export default function App() {
           <div className="w-full h-full bg-[#0a0a0a] relative">
             {/* @ts-ignore */}
             <model-viewer
-              src="/forest_path.glb"
+              src="/forest_small.glb"
+              loading="eager"
               auto-rotate
-              auto-rotate-delay={0}
+              auto-rotate-delay="0"
               rotation-per-second="8deg"
               camera-orbit="45deg 60deg 20m"
               camera-target="0m 0m 0m"
               environment-image="neutral"
               shadow-intensity="0.5"
               exposure="0.8"
+              poster="/satellite/forest_aerial.jpg"
               style={{ width: '100%', height: '100%', background: '#0a0a0a' }}
             />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#0a0a0a_85%)] pointer-events-none" />

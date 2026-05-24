@@ -55,13 +55,12 @@ export default function App() {
   // ─── Landing Screen ───────────────────────────────────────────────
   if (!started) {
     return (
-      <div className="h-screen bg-white flex">
-        {/* Left — content */}
+      <div className="h-screen bg-white flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex-1 flex flex-col justify-center px-12 lg:px-16 max-w-[640px] min-h-0"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="px-8"
         >
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
@@ -96,25 +95,6 @@ export default function App() {
             <span>Team 유니하나</span>
             <span>·</span>
             <span>v2.0</span>
-          </div>
-        </motion.div>
-
-        {/* Right — visual */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="hidden lg:flex flex-1 bg-surface items-center justify-center border-l border-border"
-        >
-          <div className="text-center space-y-6">
-            <div className="grid grid-cols-3 gap-3 opacity-40">
-              {[2019, 2020, 2021, 2022, 2023, 2024].map(yr => (
-                <div key={yr} className="w-24 h-24 rounded-lg overflow-hidden border border-border">
-                  <img src={`/satellite/orig_${yr}.png`} alt="" className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-            <p className="font-mono text-[10px] text-muted3">Sentinel-2 · Central Kalimantan · 2019–2024</p>
           </div>
         </motion.div>
       </div>

@@ -135,7 +135,7 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
         {/* 핵심 메시지 — 왜 이게 중요한지 */}
         <div className="mb-5 border border-border rounded-card bg-white p-5 flex items-start gap-4">
           <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
-            <span className="text-[18px]">💰</span>
+            <BarChart3 size={20} className="text-red-500" />
           </div>
           <div className="flex-1">
             <div className="text-[13px] font-semibold text-ink mb-1">이 플랫폼이 없으면?</div>

@@ -515,7 +515,7 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                   </div>
                   {/* 비즈니스 임팩트 */}
                   <div className="mt-3 pt-3 border-t border-border">
-                    <div className="text-[11px] font-semibold text-red-700 mb-1">⚠ 비즈니스 영향</div>
+                    <div className="text-[11px] font-semibold text-red-700 mb-1">비즈니스 영향</div>
                     <p className="text-[11px] text-muted2 leading-relaxed">
                       이 상태로 EU에 수출하면 EUDR Art.3 위반으로 <span className="font-semibold text-ink">통관 거부 + 매출액 4% 과징금</span> 가능.
                       추가 DDS 보완 또는 대체 공급원 확보를 권장합니다.

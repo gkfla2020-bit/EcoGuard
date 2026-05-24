@@ -43,11 +43,18 @@ async function sha256(text: string): Promise<string> {
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
-export default function Step4CBAM() {
-  const [stage, setStage] = useState<'scoring' | 'score-result' | 'blockchain' | 'simulation'>('scoring')
-  const [scoreChecks, setScoreChecks] = useState<{ pass: boolean; msg: string }[]>([])
-  const [visibleChecks, setVisibleChecks] = useState(0)
-  const [blockHash, setBlockHash] = useState('')
+export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boolean }) {
+  const [stage, setStage] = useState<'scoring' | 'score-result' | 'blockchain' | 'simulation'>(skipLoading ? 'simulation' : 'scoring')
+  const initialChecks: { pass: boolean; msg: string }[] = [
+    { pass: true, msg: `배출계수 ${EF} tCO₂/t — 업종 평균(${SECTOR.mean})의 ±2σ 이내 (z=0.0)` },
+    { pass: true, msg: `EU 기본값(${SECTOR.euDefault}) 미만 — 실측 제출 시 연간 수십억 절감 가능` },
+    { pass: true, msg: `에너지 사용량 12.0 GJ/t — 업종 범위 내 정상` },
+    { pass: true, msg: `생산량 ${VOLUME.toLocaleString()}톤 — 합리적 범위 확인` },
+    { pass: false, msg: `EU 벤치마크(${SECTOR.benchmark})의 1.78배 — 개선 여지 있음` },
+  ]
+  const [scoreChecks, setScoreChecks] = useState<{ pass: boolean; msg: string }[]>(skipLoading ? initialChecks : [])
+  const [visibleChecks, setVisibleChecks] = useState(skipLoading ? initialChecks.length : 0)
+  const [blockHash, setBlockHash] = useState(skipLoading ? 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2' : '')
   const [tamperValue, setTamperValue] = useState(EF.toString())
   const [tamperResult, setTamperResult] = useState<{ match: boolean; msg: string } | null>(null)
   const [simVolume, setSimVolume] = useState(VOLUME)
@@ -66,19 +73,11 @@ export default function Step4CBAM() {
     return points
   })()
 
-  // Quality score checks
-  const checks: { pass: boolean; msg: string }[] = [
-    { pass: true, msg: `배출계수 ${EF} tCO₂/t — 업종 평균(${SECTOR.mean})의 ±2σ 이내 (z=0.0)` },
-    { pass: true, msg: `EU 기본값(${SECTOR.euDefault}) 미만 — 실측 제출 시 연간 수십억 절감 가능` },
-    { pass: true, msg: `에너지 사용량 12.0 GJ/t — 업종 범위 내 정상` },
-    { pass: true, msg: `생산량 ${VOLUME.toLocaleString()}톤 — 합리적 범위 확인` },
-    { pass: false, msg: `EU 벤치마크(${SECTOR.benchmark})의 1.78배 — 개선 여지 있음` },
-  ]
   const score = 85
 
   // Auto-flow: scoring → result reveal
   const onScoringComplete = () => {
-    setScoreChecks(checks)
+    setScoreChecks(initialChecks)
     setStage('score-result')
   }
 

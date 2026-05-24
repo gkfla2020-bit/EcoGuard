@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Scale, BookOpen, ShieldCheck, ShieldAlert, ShieldX, ChevronDown, FileWarning, Gavel } from 'lucide-react'
 import PhaseLoader from '../shared/PhaseLoader'
@@ -35,14 +35,27 @@ const RULES: Rule[] = [
   { reg: 'CSDDD', article: 'Art. 8', desc: '부정적 영향 방지 조치', status: 'pass', detail: 'RSPO 소규모 농가 지원 프로그램 참여 확인. 환경 복원 계획 첨부.', evidence: 'DDS Report Annex D' },
 ]
 
-export default function Step3Regulation() {
-  const [phase, setPhase] = useState<'loading' | 'revealing' | 'done'>('loading')
-  const [visibleCount, setVisibleCount] = useState(0)
+export default function Step3Regulation({ skipLoading = false }: { skipLoading?: boolean }) {
+  const [phase, setPhase] = useState<'loading' | 'revealing' | 'done'>(skipLoading ? 'done' : 'loading')
+  const [visibleCount, setVisibleCount] = useState(skipLoading ? RULES.length : 0)
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [elapsed, setElapsed] = useState(skipLoading ? 5.9 : 0)
+  const startTime = useRef(Date.now())
+
+  // Live elapsed timer
+  useEffect(() => {
+    if (phase === 'done') return
+    const timer = setInterval(() => {
+      setElapsed(+(((Date.now() - startTime.current) / 1000)).toFixed(1))
+    }, 100)
+    return () => clearInterval(timer)
+  }, [phase])
 
   useEffect(() => {
     if (phase === 'revealing' && visibleCount < RULES.length) {
-      const t = setTimeout(() => setVisibleCount(c => c + 1), 300)
+      // Variable timing: some rules evaluate faster than others
+      const delay = 180 + Math.random() * 320
+      const t = setTimeout(() => setVisibleCount(c => c + 1), delay)
       return () => clearTimeout(t)
     }
     if (phase === 'revealing' && visibleCount >= RULES.length) {
@@ -202,7 +215,7 @@ export default function Step3Regulation() {
         <div className="mt-4 font-mono text-[10px] text-muted3 flex gap-3">
           <span>Rule Engine v2.1</span><span>·</span>
           <span>EUDR 2023/1115 · CBAM 2023/956 · CSDDD 2024/1760</span><span>·</span>
-          <span>심사 시간: 5.9s</span>
+          <span className="tabular-nums">심사 시간: {elapsed.toFixed(1)}s</span>
         </div>
       </motion.div>
     </section>

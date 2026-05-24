@@ -34,13 +34,13 @@ const ANALYSIS_PHASES: Phase[] = [
   { id: 'ndvi', label: 'NDVI 시계열 계산 (NIR−Red)/(NIR+Red)...', icon: FileCheck, duration: 1000 },
 ]
 
-export default function Step5Satellite() {
-  const [appPhase, setAppPhase] = useState<'loading' | 'done'>('loading')
+export default function Step5Satellite({ skipLoading = false }: { skipLoading?: boolean }) {
+  const [appPhase, setAppPhase] = useState<'loading' | 'done'>(skipLoading ? 'done' : 'loading')
   const [year, setYear] = useState<number>(2020)
   const [view, setView] = useState<View>('seg')
   const [playing, setPlaying] = useState(false)
   const [imageTransition, setImageTransition] = useState(false)
-  const [visibleBars, setVisibleBars] = useState(0)
+  const [visibleBars, setVisibleBars] = useState(skipLoading ? NDVI_DATA.length : 0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Timeline auto-play

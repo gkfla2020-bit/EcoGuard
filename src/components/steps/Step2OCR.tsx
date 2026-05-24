@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScanText, FileSearch, Brain, CheckCircle2, AlertTriangle, Layers } from 'lucide-react'
 import PhaseLoader from '../shared/PhaseLoader'
@@ -20,7 +20,7 @@ const OCR_PHASES: Phase[] = [
   { id: 'done', label: '추출 결과 정리...', icon: CheckCircle2, duration: 600 },
 ]
 
-const RESULTS: ExtractedField[] = [
+const BASE_RESULTS: ExtractedField[] = [
   { field: 'Exporter', value: 'PT. Sawit Kalimantan Utama', confidence: 97.2, source: 'Invoice p.1' },
   { field: 'Importer', value: 'UniHana Trading GmbH', confidence: 99.1, source: 'Invoice p.1' },
   { field: 'Product', value: 'Crude Palm Oil (CPO)', confidence: 98.4, source: 'Invoice p.1' },
@@ -35,19 +35,42 @@ const RESULTS: ExtractedField[] = [
   { field: 'ETA EU Port', value: '2024-05-28 (Rotterdam)', confidence: 93.7, source: 'B/L p.2' },
 ]
 
-export default function Step2OCR() {
-  const [phase, setPhase] = useState<'loading' | 'revealing' | 'done'>('loading')
-  const [visibleCount, setVisibleCount] = useState(0)
+// Add slight jitter to confidence values on each render session to feel non-static
+function jitterResults(results: ExtractedField[]): ExtractedField[] {
+  return results.map(r => ({
+    ...r,
+    confidence: Math.min(99.9, Math.max(85, r.confidence + (Math.random() - 0.5) * 1.2))
+  }))
+}
+
+export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolean }) {
+  // Jitter results once per mount for realistic variance
+  const RESULTS = useMemo(() => jitterResults(BASE_RESULTS), [])
+  const [phase, setPhase] = useState<'loading' | 'revealing' | 'done'>(skipLoading ? 'done' : 'loading')
+  const [visibleCount, setVisibleCount] = useState(skipLoading ? RESULTS.length : 0)
+  const [elapsed, setElapsed] = useState(skipLoading ? 4.2 : 0)
+  const startTime = useRef(Date.now())
+
+  // Live elapsed timer during loading/revealing
+  useEffect(() => {
+    if (phase === 'done') return
+    const timer = setInterval(() => {
+      setElapsed(+(((Date.now() - startTime.current) / 1000)).toFixed(1))
+    }, 100)
+    return () => clearInterval(timer)
+  }, [phase])
 
   useEffect(() => {
     if (phase === 'revealing' && visibleCount < RESULTS.length) {
-      const t = setTimeout(() => setVisibleCount(c => c + 1), 200)
+      // Variable reveal speed: some fields appear faster than others
+      const delay = 120 + Math.random() * 180
+      const t = setTimeout(() => setVisibleCount(c => c + 1), delay)
       return () => clearTimeout(t)
     }
     if (phase === 'revealing' && visibleCount >= RESULTS.length) {
       setTimeout(() => setPhase('done'), 600)
     }
-  }, [phase, visibleCount])
+  }, [phase, visibleCount, RESULTS.length])
 
   const avgConfidence = RESULTS.reduce((sum, r) => sum + r.confidence, 0) / RESULTS.length
   const lowConfidence = RESULTS.filter(r => r.confidence < 93)
@@ -166,7 +189,7 @@ export default function Step2OCR() {
         <div className="mt-4 font-mono text-[10px] text-muted3 flex gap-3">
           <span>OCR Engine: Claude Vision + Tesseract 5.0</span><span>·</span>
           <span>NLP: spaCy + custom NER</span><span>·</span>
-          <span>처리 시간: 4.2s</span>
+          <span className="tabular-nums">처리 시간: {elapsed.toFixed(1)}s</span>
         </div>
       </motion.div>
     </section>

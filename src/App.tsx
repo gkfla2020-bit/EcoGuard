@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, ChevronRight, Upload, ScanText, Scale, Calculator, Satellite, ArrowRight } from 'lucide-react'
 import Step1Intake from './components/steps/Step1Intake'
@@ -19,6 +19,22 @@ const STEPS: { id: StepId; label: string; mono: string; icon: typeof Upload }[] 
 
 export default function App() {
   const [step, setStep] = useState<StepId>(1)
+  // Track which steps have completed their loading — skip animation on revisit
+  const completedSteps = useRef<Set<StepId>>(new Set())
+  const [prevDirection, setPrevDirection] = useState<'forward' | 'back'>('forward')
+  const [clock, setClock] = useState(new Date())
+
+  useEffect(() => {
+    const t = setInterval(() => setClock(new Date()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  const navigateStep = (targetStep: StepId) => {
+    setPrevDirection(targetStep > step ? 'forward' : 'back')
+    // Mark the current step as "completed" when leaving it
+    completedSteps.current.add(step)
+    setStep(targetStep)
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -54,13 +70,14 @@ export default function App() {
             const done = s.id < step
             const StepIcon = s.icon
             return (
-              <button key={s.id} onClick={() => setStep(s.id)}
-                className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-left transition-all text-[13px] ${
+              <button key={s.id} onClick={() => navigateStep(s.id)}
+                className={`group relative flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-left transition-all duration-200 text-[13px] active:scale-[0.98] ${
                   active ? 'bg-white border border-border shadow-sm font-medium text-ink' :
-                  done ? 'text-ink hover:bg-white/50' : 'text-muted3 hover:text-muted2'
+                  done ? 'text-ink hover:bg-white/60' : 'text-muted3 hover:text-muted2 hover:bg-surface2/50'
                 }`}>
-                <div className={`w-[24px] h-[24px] rounded-md flex items-center justify-center shrink-0 transition-all ${
-                  done ? 'bg-emerald-500 text-white' : active ? 'bg-ink text-white' : 'bg-surface2 text-muted3 border border-border'
+                {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-ink" />}
+                <div className={`w-[24px] h-[24px] rounded-md flex items-center justify-center shrink-0 transition-all duration-200 ${
+                  done ? 'bg-emerald-500 text-white group-hover:scale-110' : active ? 'bg-ink text-white' : 'bg-surface2 text-muted3 border border-border group-hover:border-border2'
                 }`}>
                   {done ? <span className="text-[10px] font-bold">✓</span> : <StepIcon size={12} />}
                 </div>
@@ -91,7 +108,7 @@ export default function App() {
         {step < 5 && (
           <div className="px-4 pb-3">
             <button
-              onClick={() => setStep((step + 1) as StepId)}
+              onClick={() => navigateStep((step + 1) as StepId)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-ink text-white rounded-lg text-[12px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98]"
             >
               Next Step
@@ -125,9 +142,10 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center gap-5 font-mono text-[11px] text-muted2">
-            <span>ECO-2026-0523-001</span>
+            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />ECO-2026-0523-001</span>
             <span>Palm Oil · Central Kalimantan → EU</span>
             <span className="px-2 py-0.5 bg-surface2 rounded text-muted3">EUDR 2023/1115</span>
+            <span className="text-muted3">{clock.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
           </div>
         </header>
 
@@ -136,16 +154,16 @@ export default function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: prevDirection === 'forward' ? 20 : -20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              exit={{ opacity: 0, y: prevDirection === 'forward' ? -12 : 12 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              {step === 1 && <Step1Intake />}
-              {step === 2 && <Step2OCR />}
-              {step === 3 && <Step3Regulation />}
-              {step === 4 && <Step4CBAM />}
-              {step === 5 && <Step5Satellite />}
+              {step === 1 && <Step1Intake skipLoading={completedSteps.current.has(1)} />}
+              {step === 2 && <Step2OCR skipLoading={completedSteps.current.has(2)} />}
+              {step === 3 && <Step3Regulation skipLoading={completedSteps.current.has(3)} />}
+              {step === 4 && <Step4CBAM skipLoading={completedSteps.current.has(4)} />}
+              {step === 5 && <Step5Satellite skipLoading={completedSteps.current.has(5)} />}
             </motion.div>
           </AnimatePresence>
         </div>

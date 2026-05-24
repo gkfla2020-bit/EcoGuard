@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Loader2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -15,32 +15,68 @@ type Props = {
   onComplete: () => void
 }
 
+// Add realistic jitter: random variance per phase, occasional stalls
+function jitterDuration(base: number): number {
+  const variance = 0.25 + Math.random() * 0.5 // 0.25x to 0.75x variance
+  return Math.round(base * (0.7 + variance * 0.6))
+}
+
 export default function PhaseLoader({ phases, onComplete }: Props) {
   const [phaseIdx, setPhaseIdx] = useState(0)
   const [progress, setProgress] = useState(0)
+  const [statusMsg, setStatusMsg] = useState('')
+  const jitteredDurations = useRef<number[]>(phases.map(p => jitterDuration(p.duration)))
 
   useEffect(() => {
     if (phaseIdx >= phases.length) {
       onComplete()
       return
     }
-    const duration = phases[phaseIdx].duration
+    const duration = jitteredDurations.current[phaseIdx]
     const interval = 50
     let elapsed = 0
+    // Randomize the easing curve per phase for natural feel
+    const stallPoint = 0.3 + Math.random() * 0.3 // stall somewhere between 30-60%
+    const stallDuration = 0.08 + Math.random() * 0.15 // stall for 8-23% of the time
     const timer = setInterval(() => {
       elapsed += interval
       const raw = elapsed / duration
-      // eased progress: fast start, slow mid, fast end
-      const eased = raw < 0.3 ? raw * 2
-        : raw < 0.7 ? 0.6 + (raw - 0.3) * 0.5
-        : 0.8 + (raw - 0.7) * 0.67
-      setProgress(Math.min(eased, 1))
+      // Non-uniform easing with a random "stall" zone that simulates real I/O
+      let eased: number
+      if (raw < stallPoint * 0.5) {
+        // Fast initial burst
+        eased = raw * (1.5 + Math.random() * 0.3)
+      } else if (raw < stallPoint) {
+        // Slow approach to stall
+        eased = stallPoint * 0.5 * 1.5 + (raw - stallPoint * 0.5) * 0.6
+      } else if (raw < stallPoint + stallDuration) {
+        // Stall zone — barely moves
+        const stallProgress = (raw - stallPoint) / stallDuration
+        eased = stallPoint * 0.5 * 1.5 + (stallPoint - stallPoint * 0.5) * 0.6 + stallProgress * 0.03
+      } else {
+        // Resume and finish
+        const remaining = 1 - (stallPoint * 0.5 * 1.5 + (stallPoint - stallPoint * 0.5) * 0.6 + 0.03)
+        const resumeRaw = (raw - stallPoint - stallDuration) / (1 - stallPoint - stallDuration)
+        eased = (stallPoint * 0.5 * 1.5 + (stallPoint - stallPoint * 0.5) * 0.6 + 0.03) + resumeRaw * remaining
+      }
+      setProgress(Math.min(Math.max(eased, 0), 1))
+      // Occasionally show sub-status messages for realism
+      if (raw > 0.2 && raw < 0.25) {
+        setStatusMsg('')
+      } else if (raw > stallPoint && raw < stallPoint + 0.05) {
+        setStatusMsg('waiting...')
+      } else if (raw > 0.85) {
+        setStatusMsg('')
+      }
       if (elapsed >= duration) {
         clearInterval(timer)
+        setStatusMsg('')
+        // Variable delay between phases (50-300ms)
+        const gap = 50 + Math.random() * 250
         setTimeout(() => {
           setPhaseIdx(i => i + 1)
           setProgress(0)
-        }, 150)
+        }, gap)
       }
     }, interval)
     return () => clearInterval(timer)
@@ -97,8 +133,9 @@ export default function PhaseLoader({ phases, onComplete }: Props) {
 
               {/* Phase progress */}
               {isActive && (
-                <span className="font-mono text-[11px] text-emerald-600 font-semibold">
+                <span className="font-mono text-[11px] text-emerald-600 font-semibold tabular-nums">
                   {Math.round(progress * 100)}%
+                  {statusMsg && <span className="ml-1.5 text-[9px] text-muted3 font-normal">{statusMsg}</span>}
                 </span>
               )}
               {isDone && (

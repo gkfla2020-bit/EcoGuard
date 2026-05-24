@@ -35,9 +35,27 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function Step1Intake() {
-  const [slots, setSlots] = useState<FileSlot[]>(INITIAL_SLOTS)
-  const [phase, setPhase] = useState<'upload' | 'validating' | 'done'>('upload')
+function createDemoSlots(): FileSlot[] {
+  const demoFiles = [
+    { id: 'invoice', name: 'Invoice_PalmOil_2024.pdf', size: 2457600 },
+    { id: 'bol', name: 'BoL_KalimantanPort.pdf', size: 1126400 },
+    { id: 'origin', name: 'OriginCert_ISCC_EU.pdf', size: 1843200 },
+    { id: 'phyto', name: 'PhytoSanitaryCert_ID.pdf', size: 911360 },
+    { id: 'dds', name: 'DDS_SelfDeclaration.pdf', size: 3276800 },
+    { id: 'gps', name: 'polygon_kalimantan.geojson', size: 45056 },
+  ]
+  return INITIAL_SLOTS.map(s => {
+    const demo = demoFiles.find(d => d.id === s.id)
+    if (!demo) return s
+    const file = new File([''], demo.name, { type: 'application/pdf' })
+    Object.defineProperty(file, 'size', { value: demo.size })
+    return { ...s, file, status: 'valid' as const }
+  })
+}
+
+export default function Step1Intake({ skipLoading = false }: { skipLoading?: boolean }) {
+  const [slots, setSlots] = useState<FileSlot[]>(skipLoading ? createDemoSlots() : INITIAL_SLOTS)
+  const [phase, setPhase] = useState<'upload' | 'validating' | 'done'>(skipLoading ? 'done' : 'upload')
   const [dragTarget, setDragTarget] = useState<string | null>(null)
 
   const uploadedCount = slots.filter(s => s.file !== null).length

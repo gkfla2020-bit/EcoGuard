@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/shared/confidencebar.tsx","./src/components/shared/phaseloader.tsx","./src/components/steps/step1intake.tsx","./src/components/steps/step2ocr.tsx","./src/components/steps/step3regulation.tsx","./src/components/steps/step4cbam.tsx","./src/components/steps/step5satellite.tsx"],"version":"5.6.3"}

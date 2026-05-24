@@ -165,6 +165,7 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
                     onDrop={e => handleDrop(slot.id, e)}
                     className={`flex items-center gap-4 px-4 py-3 rounded-lg border transition-all ${
                       dragTarget === slot.id ? 'border-emerald-400 bg-emerald-50' :
+                      slot.status === 'uploaded' ? 'border-emerald-200 bg-emerald-50/30 animate-flash-success' :
                       slot.file ? 'border-emerald-200 bg-emerald-50/30' :
                       'border-border bg-white hover:border-border2'
                     }`}

@@ -101,12 +101,14 @@ export default function App() {
               loading="eager"
               auto-rotate
               auto-rotate-delay="0"
-              rotation-per-second="12deg"
-              camera-orbit="0deg 45deg auto"
+              rotation-per-second="4deg"
+              camera-orbit="0deg 75deg 2m"
+              field-of-view="60deg"
               environment-image="neutral"
               shadow-intensity="1"
-              exposure="1.5"
+              exposure="2"
               camera-controls
+              min-camera-orbit="auto auto 0.5m"
               poster="/satellite/forest_aerial.jpg"
               style={{ width: '100%', height: '100%', background: '#0a0f0a' }}
             />

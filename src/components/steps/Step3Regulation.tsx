@@ -13,6 +13,7 @@ type Rule = {
   status: RuleStatus
   detail: string
   evidence: string
+  penalty: string
 }
 
 const TRIAGE_PHASES: Phase[] = [
@@ -24,15 +25,15 @@ const TRIAGE_PHASES: Phase[] = [
 ]
 
 const RULES: Rule[] = [
-  { reg: 'EUDR', article: 'Art. 3(1)', desc: '산림전용 금지 의무', status: 'pending', detail: '위성 환경 검증(Step 5) 완료 후 판정 가능. CNN Segmentation + NDVI 분석 필요.', evidence: '→ Step 5 위성 검증 결과 대기' },
-  { reg: 'EUDR', article: 'Art. 4(2)', desc: 'DDS 실사 보고서 제출', status: 'pass', detail: 'DDS 자체 실사 보고서 제출 확인. GPS polygon 포함, 공급망 정보 기재 적합.', evidence: 'DDS_SelfDeclaration.pdf (p.1-8)' },
-  { reg: 'EUDR', article: 'Art. 9(1)(d)', desc: '지리적 좌표 (GPS polygon)', status: 'pass', detail: '원산지 GPS 좌표: 2.50°S, 111.79°E. GeoJSON polygon 4.2ha 범위 일치.', evidence: 'DDS Report p.3 + GPS polygon.geojson' },
-  { reg: 'EUDR', article: 'Art. 10(1)', desc: 'Cutoff date 이후 산림전용 없음', status: 'pending', detail: '2020-12-31 이후 산림전용 여부는 위성 시계열 분석으로 판정. Step 5 완료 필요.', evidence: '→ Step 5 NDVI 시계열 대기' },
-  { reg: 'EUDR', article: 'Art. 12', desc: '합법성 (현지법 준수)', status: 'pass', detail: '인도네시아 산림법 (PP 23/2021) 기반 HGU 허가 확인. ISCC EU 인증 유효.', evidence: 'Origin Cert + ISCC-ID-PKS-2024-0847' },
-  { reg: 'CBAM', article: 'Art. 35', desc: '내재 탄소배출량 보고', status: 'pass', detail: 'Scope 1+2 합산: 3.2 tCO₂/t. ISCC 기준 배출계수 적용. 보고 포맷 적합.', evidence: 'CBAM Declaration (Step 4)' },
-  { reg: 'CBAM', article: 'Annex III', desc: '간접 배출 (Scope 2) 보고', status: 'pass', detail: '전력 소비 기반 간접 배출: 0.35 tCO₂/t. 인도네시아 전력그리드 계수 적용.', evidence: 'Emission calc worksheet' },
-  { reg: 'CSDDD', article: 'Art. 7', desc: '공급망 인권·환경 실사', status: 'pass', detail: '소규모 농가 포함 공급망 리스트 제출. ILO 기본 조약 위반 사항 미확인.', evidence: 'DDS Report Annex C' },
-  { reg: 'CSDDD', article: 'Art. 8', desc: '부정적 영향 방지 조치', status: 'pass', detail: 'RSPO 소규모 농가 지원 프로그램 참여 확인. 환경 복원 계획 첨부.', evidence: 'DDS Report Annex D' },
+  { reg: 'EUDR', article: 'Art. 3(1)', desc: '산림전용 금지 의무', status: 'pending', detail: '위성 환경 검증(Step 5) 완료 후 판정 가능. CNN Segmentation + NDVI 분석 필요.', evidence: '→ Step 5 위성 검증 결과 대기', penalty: '수입 금지 + 매출액 4% 과징금' },
+  { reg: 'EUDR', article: 'Art. 4(2)', desc: 'DDS 실사 보고서 제출', status: 'pass', detail: 'DDS 자체 실사 보고서 제출 확인. GPS polygon 포함, 공급망 정보 기재 적합.', evidence: 'DDS_SelfDeclaration.pdf (p.1-8)', penalty: '시장 진입 차단' },
+  { reg: 'EUDR', article: 'Art. 9(1)(d)', desc: '지리적 좌표 (GPS polygon)', status: 'pass', detail: '원산지 GPS 좌표: 2.50°S, 111.79°E. GeoJSON polygon 4.2ha 범위 일치.', evidence: 'DDS Report p.3 + GPS polygon.geojson', penalty: '통관 보류' },
+  { reg: 'EUDR', article: 'Art. 10(1)', desc: 'Cutoff date 이후 산림전용 없음', status: 'pending', detail: '2020-12-31 이후 산림전용 여부는 위성 시계열 분석으로 판정. Step 5 완료 필요.', evidence: '→ Step 5 NDVI 시계열 대기', penalty: '수입 금지 + 제품 회수' },
+  { reg: 'EUDR', article: 'Art. 12', desc: '합법성 (현지법 준수)', status: 'pass', detail: '인도네시아 산림법 (PP 23/2021) 기반 HGU 허가 확인. ISCC EU 인증 유효.', evidence: 'Origin Cert + ISCC-ID-PKS-2024-0847', penalty: '형사 처벌 가능' },
+  { reg: 'CBAM', article: 'Art. 35', desc: '내재 탄소배출량 보고', status: 'pass', detail: 'Scope 1+2 합산: 3.2 tCO₂/t. ISCC 기준 배출계수 적용. 보고 포맷 적합.', evidence: 'CBAM Declaration (Step 4)', penalty: '€100/tCO₂ 미보고 과태료' },
+  { reg: 'CBAM', article: 'Annex III', desc: '간접 배출 (Scope 2) 보고', status: 'pass', detail: '전력 소비 기반 간접 배출: 0.35 tCO₂/t. 인도네시아 전력그리드 계수 적용.', evidence: 'Emission calc worksheet', penalty: 'EU 기본값 강제 적용' },
+  { reg: 'CSDDD', article: 'Art. 7', desc: '공급망 인권·환경 실사', status: 'pass', detail: '소규모 농가 포함 공급망 리스트 제출. ILO 기본 조약 위반 사항 미확인.', evidence: 'DDS Report Annex C', penalty: '매출액 5% 과징금' },
+  { reg: 'CSDDD', article: 'Art. 8', desc: '부정적 영향 방지 조치', status: 'pass', detail: 'RSPO 소규모 농가 지원 프로그램 참여 확인. 환경 복원 계획 첨부.', evidence: 'DDS Report Annex D', penalty: '민사 책임 + 기업 공시' },
 ]
 
 export default function Step3Regulation({ skipLoading = false }: { skipLoading?: boolean }) {
@@ -83,7 +84,7 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
         <div className="mb-6">
           <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">규제 적합성 심사</h2>
           <p className="text-[13px] text-muted2 mt-1">
-            OCR 추출 데이터를 EUDR, CBAM, CSDDD 규제 조항에 자동 대조하여 적합성을 판정합니다.
+            추출된 데이터가 EU 규제(산림전용 금지, 탄소 보고, 공급망 실사)를 충족하는지 조항별로 자동 판정합니다. 위반 시 수입 금지 또는 과징금 대상입니다.
           </p>
         </div>
 
@@ -206,9 +207,9 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
                             <div className="px-5 pb-4 pl-[88px]">
                               <div className="bg-surface rounded-lg p-3 space-y-2">
                                 <p className="text-[12px] text-muted2">{rule.detail}</p>
-                                <div className="flex items-center gap-2 text-[10px]">
-                                  <span className="text-muted3">근거:</span>
-                                  <span className="font-mono text-muted2">{rule.evidence}</span>
+                                <div className="flex items-center gap-4 text-[10px]">
+                                  <span><span className="text-muted3">근거:</span> <span className="font-mono text-muted2">{rule.evidence}</span></span>
+                                  <span><span className="text-muted3">위반 시:</span> <span className="font-semibold text-red-600">{rule.penalty}</span></span>
                                 </div>
                               </div>
                             </div>

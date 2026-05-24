@@ -80,7 +80,7 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
         <div className="mb-6">
           <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">OCR 자동 추출</h2>
           <p className="text-[13px] text-muted2 mt-1">
-            업로드된 서류에서 AI가 핵심 정보를 자동으로 추출하고 문서 간 교차 검증합니다.
+            서류에서 기업명, HS코드, 수량, GPS 좌표 등 핵심 정보를 AI가 자동으로 읽어내고, 문서 간 불일치를 찾아냅니다.
           </p>
         </div>
 

@@ -131,7 +131,7 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
         <div className="mb-6">
           <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">서류 접수</h2>
           <p className="text-[13px] text-muted2 mt-1">
-            수입 건에 필요한 서류를 업로드합니다. EUDR Art.4 DDS 요건 충족을 위해 최소 {requiredCount}종의 필수 문서가 필요합니다.
+            EU로 수출하려면 제품의 원산지, 합법성, 환경 영향을 증명하는 서류가 필요합니다. 최소 {requiredCount}종을 업로드하면 자동 검증이 시작됩니다.
           </p>
         </div>
 
@@ -346,6 +346,15 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
                     </motion.div>
                   ))}
                 </div>
+              </div>
+
+              {/* 다음 단계 안내 */}
+              <div className="mt-5 bg-surface rounded-card border border-border p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-[12px] font-semibold text-ink">서류 준비 완료</div>
+                  <div className="text-[11px] text-muted2 mt-0.5">다음 단계에서 AI가 서류의 핵심 정보를 자동으로 읽어냅니다.</div>
+                </div>
+                <div className="text-[10px] text-muted3 font-mono">→ 또는 Next 버튼</div>
               </div>
             </motion.div>
           )}

@@ -109,7 +109,7 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
         <div className="mb-6">
           <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">위성 환경 검증</h2>
           <p className="text-[13px] text-muted2 mt-1">
-            Sentinel-2 위성 이미지 기반 CNN Segmentation + Grad-CAM 분석으로 산림전용 여부를 검증합니다.
+            위성 사진으로 원산지의 산림이 실제로 파괴되었는지 AI가 판별합니다. <span title="EUDR: 2020-12-31 이후 산림전용된 토지의 원자재는 EU 수입 금지" className="underline decoration-dotted cursor-help">2020년 이후 산림이 줄었으면</span> EU 수출이 불가능합니다.
           </p>
         </div>
 
@@ -406,7 +406,7 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <div className="text-[13px] font-semibold text-ink">NDVI 시계열 추이</div>
-                      <div className="text-[11px] text-muted2 mt-0.5">Normalized Difference Vegetation Index · 2019–2024</div>
+                      <div className="text-[11px] text-muted2 mt-0.5"><span title="NDVI: 식물의 활력을 0~1로 나타낸 지수. 0.6 이상이면 건강한 산림." className="underline decoration-dotted cursor-help">NDVI</span> · 2019–2024</div>
                     </div>
                     <div className="flex items-center gap-3 text-[10px] text-muted3">
                       <span className="flex items-center gap-1"><span className="w-3 h-[2px] bg-emerald-500 inline-block" /> NDVI</span>
@@ -512,6 +512,14 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                       <span className="text-muted3 mt-0.5">●</span>
                       <span>NDVI 2020: 0.71 → 2024: 0.50 (Δ-29.6%). 산림 임계값(0.6) 하회 시점: 2023.</span>
                     </div>
+                  </div>
+                  {/* 비즈니스 임팩트 */}
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <div className="text-[11px] font-semibold text-red-700 mb-1">⚠ 비즈니스 영향</div>
+                    <p className="text-[11px] text-muted2 leading-relaxed">
+                      이 상태로 EU에 수출하면 EUDR Art.3 위반으로 <span className="font-semibold text-ink">통관 거부 + 매출액 4% 과징금</span> 가능.
+                      추가 DDS 보완 또는 대체 공급원 확보를 권장합니다.
+                    </p>
                   </div>
                 </motion.div>
               )}

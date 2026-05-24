@@ -64,38 +64,39 @@ export default function App() {
           className="flex-1 flex flex-col justify-center px-12 lg:px-16 max-w-[640px]"
         >
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-12">
-            <svg width={28} height={28} viewBox="0 0 20 20" fill="none">
+          <div className="flex items-center gap-3 mb-8">
+            <svg width={24} height={24} viewBox="0 0 20 20" fill="none">
               <circle cx="10" cy="10" r="9" stroke="#0A0A0A" strokeWidth="1.5" />
               <path d="M10 1v18M1 10h18" stroke="#0A0A0A" strokeWidth="1.5" />
               <circle cx="14" cy="6" r="1.5" fill="#0A0A0A" />
             </svg>
-            <span className="font-heading font-semibold text-[18px] text-ink tracking-tight">EcoTrade</span>
+            <span className="font-heading font-semibold text-[16px] text-ink tracking-tight">EcoTrade</span>
           </div>
 
           {/* Title */}
-          <h1 className="font-heading text-[42px] font-bold text-ink tracking-tight leading-[1.1] mb-4">
+          <h1 className="font-heading text-[32px] font-bold text-ink tracking-tight leading-[1.15] mb-3">
             EU 환경 규제<br />통합 컴플라이언스
           </h1>
-          <p className="text-[16px] text-muted2 leading-relaxed mb-3 max-w-[400px]">
+          <p className="text-[14px] text-muted2 leading-relaxed mb-6 max-w-[380px]">
             EUDR 산림전용 검증, CBAM 탄소비용 산정, CSDDD 공급망 실사를 하나의 파이프라인으로.
           </p>
-          <div className="flex items-center gap-3 text-[12px] text-muted3 font-mono mb-10">
+
+          {/* CTA */}
+          <button
+            onClick={() => setStarted(true)}
+            className="w-fit px-7 py-3 bg-ink text-white rounded-lg text-[14px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.97]"
+          >
+            새 케이스 시작
+          </button>
+
+          <div className="flex items-center gap-3 text-[11px] text-muted3 font-mono mt-8">
             <span className="px-2 py-0.5 bg-surface2 rounded">EUDR</span>
             <span className="px-2 py-0.5 bg-surface2 rounded">CBAM</span>
             <span className="px-2 py-0.5 bg-surface2 rounded">CSDDD</span>
           </div>
 
-          {/* CTA */}
-          <button
-            onClick={() => setStarted(true)}
-            className="w-fit px-8 py-3.5 bg-ink text-white rounded-lg text-[14px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.97]"
-          >
-            새 케이스 시작
-          </button>
-
           {/* Footer */}
-          <div className="mt-auto pt-12 font-mono text-[10px] text-muted3 flex items-center gap-4">
+          <div className="mt-auto pt-8 font-mono text-[10px] text-muted3 flex items-center gap-4">
             <span>Team 유니하나</span>
             <span>v2.0</span>
             <span>{new Date().toISOString().slice(0, 10)}</span>

@@ -77,18 +77,20 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
   return (
     <section>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <div className="mb-4">
-          <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">OCR 자동 추출</h2>
-          <p className="text-[13px] text-muted2 mt-1">
-            서류에서 기업명, HS코드, 수량, GPS 좌표 등 핵심 정보를 AI가 자동으로 읽어내고, 문서 간 불일치를 찾아냅니다.
-          </p>
-        </div>
+        {phase !== 'idle' && (
+          <div className="mb-4">
+            <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">OCR 자동 추출</h2>
+            <p className="text-[13px] text-muted2 mt-1">
+              서류에서 기업명, HS코드, 수량, GPS 좌표 등 핵심 정보를 AI가 자동으로 읽어내고, 문서 간 불일치를 찾아냅니다.
+            </p>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           {phase === 'idle' && (
-            <motion.div key="idle" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="border border-border rounded-card p-4 bg-white">
-              <div className="text-[13px] font-semibold text-ink mb-2">업로드된 서류 준비됨</div>
-              <div className="text-[11px] text-muted2 mb-3">5개 문서 (12 pages) · Invoice, B/L, Origin Cert, Phyto, DDS</div>
+            <motion.div key="idle" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="border border-border rounded-card p-5 bg-white">
+              <h2 className="font-heading text-[20px] font-bold text-ink tracking-tight mb-1">OCR 자동 추출</h2>
+              <p className="text-[12px] text-muted2 mb-4">서류에서 핵심 정보를 AI가 읽어냅니다. 5개 문서 (12 pages)</p>
               <div className="flex gap-2">
                 <button onClick={() => { startTime.current = Date.now(); setPhase('loading') }}
                   className="px-5 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center gap-2">

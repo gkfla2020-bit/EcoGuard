@@ -81,18 +81,20 @@ export default function Step3Regulation({ skipLoading = false }: { skipLoading?:
   return (
     <section>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <div className="mb-4">
-          <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">규제 적합성 심사</h2>
-          <p className="text-[13px] text-muted2 mt-1">
-            추출된 데이터가 EU 규제(산림전용 금지, 탄소 보고, 공급망 실사)를 충족하는지 조항별로 자동 판정합니다. 위반 시 수입 금지 또는 과징금 대상입니다.
-          </p>
-        </div>
+        {phase !== 'idle' && (
+          <div className="mb-4">
+            <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">규제 적합성 심사</h2>
+            <p className="text-[13px] text-muted2 mt-1">
+              추출된 데이터가 EU 규제를 충족하는지 조항별로 자동 판정합니다. 위반 시 수입 금지 또는 과징금 대상입니다.
+            </p>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           {phase === 'idle' && (
-            <motion.div key="idle" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="border border-border rounded-card p-4 bg-white">
-              <div className="text-[13px] font-semibold text-ink mb-2">규제 데이터 준비됨</div>
-              <div className="text-[11px] text-muted2 mb-3">EUDR 2023/1115 · CBAM 2023/956 · CSDDD 2024/1760 — {RULES.length}개 조항 대조 예정</div>
+            <motion.div key="idle" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="border border-border rounded-card p-5 bg-white">
+              <h2 className="font-heading text-[20px] font-bold text-ink tracking-tight mb-1">규제 적합성 심사</h2>
+              <p className="text-[12px] text-muted2 mb-4">EUDR · CBAM · CSDDD {RULES.length}개 조항 자동 대조. 위반 시 수입 금지 또는 과징금.</p>
               <div className="flex gap-2">
                 <button onClick={() => { startTime.current = Date.now(); setPhase('loading') }}
                   className="px-5 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center gap-2">

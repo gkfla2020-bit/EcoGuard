@@ -106,12 +106,14 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
   return (
     <section>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <div className="mb-4">
-          <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">위성 환경 검증</h2>
-          <p className="text-[13px] text-muted2 mt-1">
-            위성 사진으로 원산지의 산림이 실제로 파괴되었는지 AI가 판별합니다. <span title="EUDR: 2020-12-31 이후 산림전용된 토지의 원자재는 EU 수입 금지" className="underline decoration-dotted cursor-help">2020년 이후 산림이 줄었으면</span> EU 수출이 불가능합니다.
-          </p>
-        </div>
+        {appPhase !== 'idle' && (
+          <div className="mb-4">
+            <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">위성 환경 검증</h2>
+            <p className="text-[13px] text-muted2 mt-1">
+              위성 사진으로 원산지의 산림이 실제로 파괴되었는지 AI가 판별합니다.
+            </p>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           {appPhase === 'idle' && (
@@ -119,9 +121,26 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
               key="idle"
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="border border-border rounded-card bg-white p-6"
+              className="border border-border rounded-card bg-white p-5"
             >
-              <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-[20px] font-bold text-ink tracking-tight mb-1">위성 환경 검증</h2>
+              <p className="text-[12px] text-muted2 mb-4">2020년 이후 산림이 파괴됐는지 위성 AI가 판별합니다. 파괴 시 EU 수출 불가.</p>
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={runAnalysis}
+                  className="flex-1 py-2.5 bg-ink text-white rounded-lg text-[13px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <Satellite size={15} />
+                  CNN 분석 실행
+                </button>
+                <button
+                  onClick={() => { setAppPhase('done'); setVisibleBars(NDVI_DATA.length) }}
+                  className="px-4 py-2.5 border border-border rounded-lg text-[12px] text-muted2 hover:bg-surface2 transition-colors"
+                >
+                  결과 바로보기
+                </button>
+              </div>
+              <div className="flex items-center justify-between mb-3">
                 <div>
                   <div className="text-[13px] font-semibold text-ink">위성 데이터 준비됨</div>
                   <div className="text-[11px] text-muted2 mt-0.5">Sentinel-2 L2A · 2019–2024 · Central Kalimantan (2.50°S, 111.79°E)</div>

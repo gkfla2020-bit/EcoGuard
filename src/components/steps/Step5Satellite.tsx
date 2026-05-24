@@ -360,13 +360,18 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
               {/* Stats + Verdict */}
               <div className="mt-4 flex gap-3">
                 <div className="flex-1 border border-border rounded-card grid grid-cols-5 divide-x divide-border bg-white">
-                  {[
-                    { l: 'Forest', v: `${s.forest}%`, c: s.forest < 50 ? 'text-red-600' : 'text-emerald-700' },
-                    { l: 'Farmland', v: `${s.farm}%`, c: 'text-amber-600' },
-                    { l: 'Bare', v: `${s.bare}%`, c: s.bare > 10 ? 'text-red-600' : 'text-muted2' },
-                    { l: 'Urban', v: `${s.urban}%`, c: 'text-muted2' },
-                    { l: 'Δ Forest', v: `${change > 0 ? '+' : ''}${change}%`, c: change < -10 ? 'text-red-600' : 'text-emerald-700' },
-                  ].map(k => (
+                  {(() => {
+                    const prevYear = YEARS[YEARS.indexOf(year as any) - 1]
+                    const prev = prevYear ? STATS[prevYear] : null
+                    const fd = prev ? s.forest - prev.forest : 0
+                    return [
+                      { l: 'Forest', v: `${s.forest}%`, d: fd, c: s.forest < 50 ? 'text-red-600' : 'text-emerald-700' },
+                      { l: 'Farmland', v: `${s.farm}%`, d: prev ? s.farm - prev.farm : 0, c: 'text-amber-600' },
+                      { l: 'Bare', v: `${s.bare}%`, d: prev ? s.bare - prev.bare : 0, c: s.bare > 10 ? 'text-red-600' : 'text-muted2' },
+                      { l: 'Urban', v: `${s.urban}%`, d: prev ? s.urban - prev.urban : 0, c: 'text-muted2' },
+                      { l: 'Δ vs 2019', v: `${change > 0 ? '+' : ''}${change}%p`, d: 0, c: change < -10 ? 'text-red-600' : 'text-emerald-700' },
+                    ]
+                  })().map(k => (
                     <motion.div key={k.l} className="px-3 py-3" layout>
                       <div className="font-mono text-[9px] text-muted3 uppercase tracking-wide">{k.l}</div>
                       <motion.div
@@ -377,6 +382,11 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                       >
                         {k.v}
                       </motion.div>
+                      {k.d !== 0 && (
+                        <div className={`font-mono text-[9px] mt-0.5 ${k.d < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
+                          {k.d > 0 ? '+' : ''}{k.d}%p vs prev
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                 </div>

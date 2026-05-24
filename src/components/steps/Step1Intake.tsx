@@ -53,9 +53,20 @@ function createDemoSlots(): FileSlot[] {
   })
 }
 
+const SECTORS = [
+  { id: 'palm_oil', label: 'Palm Oil (팜유)', hs: '1511.10', regs: ['EUDR', 'CBAM', 'CSDDD'] },
+  { id: 'timber', label: 'Timber (목재)', hs: '4403', regs: ['EUDR', 'CSDDD'] },
+  { id: 'coffee', label: 'Coffee (커피)', hs: '0901', regs: ['EUDR'] },
+  { id: 'cocoa', label: 'Cocoa (카카오)', hs: '1801', regs: ['EUDR'] },
+  { id: 'steel', label: 'Steel (철강)', hs: '7208', regs: ['CBAM'] },
+  { id: 'aluminium', label: 'Aluminium (알루미늄)', hs: '7601', regs: ['CBAM'] },
+  { id: 'cement', label: 'Cement (시멘트)', hs: '2523', regs: ['CBAM'] },
+]
+
 export default function Step1Intake({ skipLoading = false }: { skipLoading?: boolean }) {
+  const [sector, setSector] = useState(skipLoading ? 'palm_oil' : '')
   const [slots, setSlots] = useState<FileSlot[]>(skipLoading ? createDemoSlots() : INITIAL_SLOTS)
-  const [phase, setPhase] = useState<'upload' | 'validating' | 'done'>(skipLoading ? 'done' : 'upload')
+  const [phase, setPhase] = useState<'sector' | 'upload' | 'validating' | 'done'>(skipLoading ? 'done' : 'sector')
   const [dragTarget, setDragTarget] = useState<string | null>(null)
 
   const uploadedCount = slots.filter(s => s.file !== null).length
@@ -136,6 +147,29 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
         </div>
 
         <AnimatePresence mode="wait">
+          {phase === 'sector' && (
+            <motion.div key="sector" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+              <div className="border border-border rounded-card p-5 bg-white">
+                <div className="text-[14px] font-semibold text-ink mb-1">업종 선택</div>
+                <p className="text-[12px] text-muted2 mb-4">수출 품목의 업종을 선택하면 해당 규제에 맞는 필수 서류 목록이 표시됩니다.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {SECTORS.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => { setSector(s.id); setPhase('upload') }}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-white hover:border-ink hover:bg-surface transition-all text-left active:scale-[0.98]"
+                    >
+                      <div className="flex-1">
+                        <div className="text-[13px] font-medium text-ink">{s.label}</div>
+                        <div className="text-[10px] text-muted3 font-mono mt-0.5">HS {s.hs} · {s.regs.join(' + ')}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {phase === 'upload' && (
             <motion.div key="upload" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
               {/* Bulk drop zone */}

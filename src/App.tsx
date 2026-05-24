@@ -61,7 +61,7 @@ export default function App() {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex-1 flex flex-col justify-center px-12 lg:px-16 max-w-[640px]"
+          className="flex-1 flex flex-col justify-start pt-[12vh] px-12 lg:px-16 max-w-[640px] overflow-y-auto"
         >
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
@@ -84,7 +84,7 @@ export default function App() {
           {/* CTA */}
           <button
             onClick={() => setStarted(true)}
-            className="w-fit px-7 py-3 bg-ink text-white rounded-lg text-[14px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.97]"
+            className="w-fit px-7 py-3 bg-ink text-white rounded-lg text-[14px] font-semibold hover:bg-ink2 transition-colors active:scale-[0.97] shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
           >
             새 케이스 시작
           </button>

@@ -8,10 +8,10 @@ export default function TerrainView() {
           style={{ transform: 'rotateX(55deg) rotateZ(-10deg)', transformOrigin: 'center center' }}
         >
           <img
-            src="/satellite/orig_2021.png"
+            src="/satellite/forest_aerial.jpg"
             alt=""
-            className="w-full h-full object-cover opacity-70"
-            style={{ filter: 'saturate(1.2) contrast(1.1)' }}
+            className="w-full h-full object-cover opacity-80"
+            style={{ filter: 'saturate(1.3) contrast(1.15) brightness(0.9)' }}
           />
           {/* Grid overlay */}
           <div

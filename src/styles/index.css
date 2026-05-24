@@ -17,13 +17,46 @@
   }
   ::selection { background-color: #E4E4E7; color: #0A0A0A; }
   table { font-variant-numeric: tabular-nums; }
+  button, [role="button"] { cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid #0A0A0A;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  input[type="range"]:focus-visible { outline-offset: 4px; }
 }
 
-.leaflet-container { font-family: 'Inter', sans-serif; }
-.leaflet-popup-content-wrapper { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #D4D4D8; border-radius: 3px; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: #E4E4E7;
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #0A0A0A;
+  border-radius: 50%;
+  cursor: grab;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #0A0A0A;
+  border-radius: 50%;
+  cursor: grab;
+  border: 2px solid #fff;
+}
 
 @keyframes scanDown {
   0% { top: 0%; opacity: 0; }

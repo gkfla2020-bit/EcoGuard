@@ -180,6 +180,27 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
+              {/* Pipeline steps indicator */}
+              <div className="flex items-center gap-0 mb-5 border border-border rounded-lg overflow-hidden bg-white">
+                {[
+                  { label: 'Sentinel-2 수집', sub: '6 tiles', done: true },
+                  { label: 'U-Net Segmentation', sub: 'ResNet34', done: true },
+                  { label: 'Grad-CAM', sub: 'Saliency map', done: true },
+                  { label: 'NDVI 계산', sub: '(NIR−R)/(NIR+R)', done: true },
+                  { label: '판정', sub: risk + ' Risk', done: true },
+                ].map((p, i) => (
+                  <div key={p.label} className={`flex-1 flex items-center gap-2 px-3 py-2.5 ${i < 4 ? 'border-r border-border' : ''} ${i === 4 ? (risk === 'High' ? 'bg-red-50' : risk === 'Medium' ? 'bg-amber-50' : 'bg-emerald-50') : ''}`}>
+                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                      <span className="text-white text-[8px] font-bold">✓</span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-medium text-ink truncate">{p.label}</div>
+                      <div className="text-[9px] text-muted3 font-mono">{p.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               {/* Controls bar */}
               <div className="flex items-center gap-3 mb-4">
                 {/* Year selector */}

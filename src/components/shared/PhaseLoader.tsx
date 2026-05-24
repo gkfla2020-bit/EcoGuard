@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export type Phase = {
@@ -15,135 +15,49 @@ type Props = {
   onComplete: () => void
 }
 
-// Add realistic jitter: random variance per phase, occasional stalls
-function jitterDuration(base: number): number {
-  const variance = 0.25 + Math.random() * 0.5 // 0.25x to 0.75x variance
-  return Math.round(base * (0.7 + variance * 0.6))
-}
-
 export default function PhaseLoader({ phases, onComplete }: Props) {
   const [phaseIdx, setPhaseIdx] = useState(0)
   const [progress, setProgress] = useState(0)
-  const [statusMsg, setStatusMsg] = useState('')
-  const jitteredDurations = useRef<number[]>(phases.map(p => jitterDuration(p.duration)))
+  const totalDuration = useRef(phases.reduce((s, p) => s + p.duration * (0.4 + Math.random() * 0.4), 0))
 
   useEffect(() => {
     if (phaseIdx >= phases.length) {
       onComplete()
       return
     }
-    const duration = jitteredDurations.current[phaseIdx]
-    const interval = 50
+    const duration = phases[phaseIdx].duration * (0.4 + Math.random() * 0.4)
     let elapsed = 0
-    // Randomize the easing curve per phase for natural feel
-    const stallPoint = 0.3 + Math.random() * 0.3 // stall somewhere between 30-60%
-    const stallDuration = 0.08 + Math.random() * 0.15 // stall for 8-23% of the time
+    const interval = 60
     const timer = setInterval(() => {
       elapsed += interval
-      const raw = elapsed / duration
-      // Non-uniform easing with a random "stall" zone that simulates real I/O
-      let eased: number
-      if (raw < stallPoint * 0.5) {
-        // Fast initial burst
-        eased = raw * (1.5 + Math.random() * 0.3)
-      } else if (raw < stallPoint) {
-        // Slow approach to stall
-        eased = stallPoint * 0.5 * 1.5 + (raw - stallPoint * 0.5) * 0.6
-      } else if (raw < stallPoint + stallDuration) {
-        // Stall zone — barely moves
-        const stallProgress = (raw - stallPoint) / stallDuration
-        eased = stallPoint * 0.5 * 1.5 + (stallPoint - stallPoint * 0.5) * 0.6 + stallProgress * 0.03
-      } else {
-        // Resume and finish
-        const remaining = 1 - (stallPoint * 0.5 * 1.5 + (stallPoint - stallPoint * 0.5) * 0.6 + 0.03)
-        const resumeRaw = (raw - stallPoint - stallDuration) / (1 - stallPoint - stallDuration)
-        eased = (stallPoint * 0.5 * 1.5 + (stallPoint - stallPoint * 0.5) * 0.6 + 0.03) + resumeRaw * remaining
-      }
-      setProgress(Math.min(Math.max(eased, 0), 1))
-      // Occasionally show sub-status messages for realism
-      if (raw > 0.2 && raw < 0.25) {
-        setStatusMsg('')
-      } else if (raw > stallPoint && raw < stallPoint + 0.05) {
-        setStatusMsg('waiting...')
-      } else if (raw > 0.85) {
-        setStatusMsg('')
-      }
+      const raw = Math.min(elapsed / duration, 1)
+      setProgress(raw)
       if (elapsed >= duration) {
         clearInterval(timer)
-        setStatusMsg('')
-        // Variable delay between phases (50-300ms)
-        const gap = 50 + Math.random() * 250
-        setTimeout(() => {
-          setPhaseIdx(i => i + 1)
-          setProgress(0)
-        }, gap)
+        setTimeout(() => { setPhaseIdx(i => i + 1); setProgress(0) }, 80)
       }
     }, interval)
     return () => clearInterval(timer)
   }, [phaseIdx, phases, onComplete])
 
   const overallProgress = ((phaseIdx + progress) / phases.length) * 100
+  const currentLabel = phaseIdx < phases.length ? phases[phaseIdx].label : 'Complete'
 
   return (
-    <div className="space-y-4">
-      {/* Overall progress bar */}
-      <div className="w-full h-1.5 bg-surface2 rounded-full overflow-hidden">
+    <div className="space-y-3">
+      {/* Single progress bar */}
+      <div className="w-full h-1 bg-surface2 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-emerald-500 rounded-full"
+          className="h-full bg-ink rounded-full"
           animate={{ width: `${overallProgress}%` }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.08 }}
         />
       </div>
-
-      {/* Phase list */}
-      <div className="space-y-2">
-        {phases.map((phase, i) => {
-          const Icon = phase.icon
-          const isDone = i < phaseIdx
-          const isActive = i === phaseIdx
-          const isPending = i > phaseIdx
-
-          return (
-            <motion.div
-              key={phase.id}
-              initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: isPending ? 0.3 : 1, x: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                isActive ? 'bg-emerald-50' : ''
-              }`}
-            >
-              {/* Status icon */}
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
-                isDone ? 'bg-emerald-500' :
-                isActive ? 'bg-emerald-100 border-2 border-emerald-500' :
-                'bg-surface2 border border-border'
-              }`}>
-                {isDone && <Check size={14} className="text-white" strokeWidth={3} />}
-                {isActive && <Loader2 size={14} className="text-emerald-600 animate-spin" />}
-                {isPending && <Icon size={12} className="text-muted3" />}
-              </div>
-
-              {/* Label */}
-              <span className={`text-[13px] flex-1 ${
-                isDone ? 'text-muted2 line-through' :
-                isActive ? 'text-ink font-medium' :
-                'text-muted3'
-              }`}>{phase.label}</span>
-
-              {/* Phase progress */}
-              {isActive && (
-                <span className="font-mono text-[11px] text-emerald-600 font-semibold tabular-nums">
-                  {Math.round(progress * 100)}%
-                  {statusMsg && <span className="ml-1.5 text-[9px] text-muted3 font-normal">{statusMsg}</span>}
-                </span>
-              )}
-              {isDone && (
-                <span className="font-mono text-[10px] text-emerald-600">done</span>
-              )}
-            </motion.div>
-          )
-        })}
+      {/* Current status — single line, minimal */}
+      <div className="flex items-center gap-2">
+        <Loader2 size={13} className="text-muted3 animate-spin" />
+        <span className="text-[12px] text-muted2">{currentLabel}</span>
+        <span className="ml-auto font-mono text-[11px] text-muted3 tabular-nums">{Math.round(overallProgress)}%</span>
       </div>
     </div>
   )

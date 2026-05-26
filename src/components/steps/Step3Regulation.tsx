@@ -79,10 +79,10 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
   }
 
   const StatusIcon = ({ status }: { status: RuleStatus }) => {
-    if (status === 'pass') return <ShieldCheck size={16} className="text-emerald-600" />
-    if (status === 'warn') return <ShieldAlert size={16} className="text-amber-600" />
+    if (status === 'pass') return <ShieldCheck size={16} className="text-ink" />
+    if (status === 'warn') return <ShieldAlert size={16} className="text-ink" />
     if (status === 'pending') return <ShieldAlert size={16} className="text-muted3" />
-    return <ShieldX size={16} className="text-red-600" />
+    return <ShieldX size={16} className="text-ink" />
   }
 
   return (
@@ -140,33 +140,26 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              {/* Summary cards */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
+              {/* Summary */}
+              <div className="flex items-center gap-6 mb-5 pb-4 border-b border-border">
                 {[
-                  { label: 'PASS', count: counts.pass, icon: ShieldCheck, border: 'border-emerald-300', bg: 'bg-emerald-50', text: 'text-emerald-700' },
-                  { label: 'WARNING', count: counts.warn, icon: ShieldAlert, border: 'border-amber-300', bg: 'bg-amber-50', text: 'text-amber-700' },
-                  { label: 'FAIL', count: counts.fail, icon: ShieldX, border: 'border-red-300', bg: 'bg-red-50', text: 'text-red-700' },
+                  { label: 'PASS', count: counts.pass, key: 'pass' as RuleStatus },
+                  { label: 'WARNING', count: counts.warn, key: 'warn' as RuleStatus },
+                  { label: 'FAIL', count: counts.fail, key: 'fail' as RuleStatus },
                 ].map(s => {
-                  const statusKey = (s.label === 'WARNING' ? 'warn' : s.label.toLowerCase()) as RuleStatus
-                  const isActive = filter === statusKey
+                  const isActive = filter === s.key
                   return (
-                  <motion.div
-                    key={s.label}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    onClick={() => setFilter(isActive ? 'all' : statusKey)}
-                    className={`border-2 ${s.border} ${s.bg} rounded-card px-4 py-3 cursor-pointer transition-all active:scale-[0.98] ${isActive ? 'ring-2 ring-offset-1 ring-ink/20' : 'hover:shadow-sm'}`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <s.icon size={14} className={s.text} />
-                      <span className="font-mono text-[10px] text-muted2 uppercase tracking-wide">{s.label}</span>
-                    </div>
-                    <div className={`font-heading text-[28px] font-bold ${s.text}`}>{s.count}</div>
-                    <div className="text-[10px] text-muted3">/ {RULES.length} articles</div>
-                  </motion.div>
+                    <button
+                      key={s.label}
+                      onClick={() => setFilter(isActive ? 'all' : s.key)}
+                      className={`text-left transition-all ${isActive ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                    >
+                      <div className="font-mono text-[9px] text-muted3 uppercase tracking-wide">{s.label}</div>
+                      <div className="font-heading text-[24px] font-bold text-ink">{s.count}</div>
+                    </button>
                   )
                 })}
+                <div className="ml-auto font-mono text-[10px] text-muted3">{RULES.length} articles</div>
               </div>
 
               {/* Rules list */}
@@ -198,9 +191,9 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
                         <span className="w-[90px] shrink-0 font-mono text-[11px] text-muted2">{rule.article}</span>
                         <span className="flex-1 text-[13px] text-ink">{rule.desc}</span>
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase ${
-                          rule.status === 'pass' ? 'bg-emerald-100 text-emerald-700' :
-                          rule.status === 'warn' ? 'bg-amber-100 text-amber-700' :
-                          rule.status === 'pending' ? 'bg-surface2 text-muted3' : 'bg-red-100 text-red-700'
+                          rule.status === 'pass' ? 'bg-surface2 text-ink' :
+                          rule.status === 'warn' ? 'border border-border text-ink' :
+                          rule.status === 'pending' ? 'bg-surface2 text-muted3' : 'border border-border text-ink'
                         }`}>{rule.status === 'pending' ? '대기' : rule.status}</span>
                         <ChevronDown size={14} className={`text-muted3 transition-transform ${expanded === i ? 'rotate-180' : ''}`} />
                       </div>
@@ -239,12 +232,12 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
-                  className="mt-4 border-2 border-amber-400 rounded-card p-4 bg-amber-50 flex items-center gap-4"
+                  className="mt-4 border border-border rounded-card p-4 bg-surface flex items-center gap-4"
                 >
-                  <ShieldAlert size={24} className="text-amber-600 shrink-0" />
+                  <ShieldAlert size={20} className="text-ink shrink-0" />
                   <div>
-                    <div className="text-[13px] font-semibold text-amber-800">종합 판정: 서류 적합 · 위성 검증 대기</div>
-                    <div className="text-[11px] text-amber-700 mt-0.5">
+                    <div className="text-[13px] font-semibold text-ink">종합 판정: 서류 적합 · 위성 검증 대기</div>
+                    <div className="text-[11px] text-muted2 mt-0.5">
                       서류 기반 7개 조항 PASS. EUDR Art.3, Art.10은 위성 환경 검증(Step 5) 완료 후 최종 판정.
                     </div>
                   </div>

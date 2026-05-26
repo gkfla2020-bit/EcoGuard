@@ -174,17 +174,17 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
                     onDragLeave={() => setDragTarget(null)}
                     onDrop={e => handleDrop(slot.id, e)}
                     className={`flex items-center gap-4 px-4 py-3 rounded-lg border transition-all ${
-                      dragTarget === slot.id ? 'border-emerald-400 bg-emerald-50' :
-                      slot.status === 'uploaded' ? 'border-emerald-200 bg-emerald-50/30 animate-flash-success' :
-                      slot.file ? 'border-emerald-200 bg-emerald-50/30' :
+                      dragTarget === slot.id ? 'border-ink bg-surface' :
+                      slot.status === 'uploaded' ? 'border-border2 bg-surface' :
+                      slot.file ? 'border-border2 bg-surface' :
                       'border-border bg-white hover:border-border2'
                     }`}
                   >
                     {/* Icon */}
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                      slot.file ? 'bg-emerald-100' : 'bg-surface2'
+                      slot.file ? 'bg-surface2' : 'bg-surface2'
                     }`}>
-                      {slot.file ? <CheckCircle2 size={18} className="text-emerald-600" /> : <FileText size={18} className="text-muted3" />}
+                      {slot.file ? <CheckCircle2 size={18} className="text-ink" /> : <FileText size={18} className="text-muted3" />}
                     </div>
 
                     {/* Label */}
@@ -225,7 +225,7 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
                 <div className="flex items-center gap-3">
                   <div className="text-[12px] text-muted2">
                     <span className="font-mono font-semibold text-ink">{uploadedCount}</span> / {slots.length} 파일 업로드됨
-                    {allRequiredDone && <span className="ml-2 text-emerald-600 font-medium">· 필수 서류 완비</span>}
+                    {allRequiredDone && <span className="ml-2 text-ink font-medium">· 필수 서류 완비</span>}
                   </div>
                   {uploadedCount === 0 && (
                     <button onClick={loadDemoFiles} className="px-3 py-1.5 rounded-md border border-border text-[11px] font-medium text-muted2 hover:bg-surface2 transition-colors active:scale-[0.98]">
@@ -343,12 +343,12 @@ export default function Step1Intake({ skipLoading = false }: { skipLoading?: boo
                       transition={{ duration: 0.3, delay: i * 0.08 }}
                       className="px-5 py-3 flex items-center gap-4"
                     >
-                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                      <CheckCircle2 size={16} className="text-ink shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="text-[13px] font-medium text-ink truncate">{slot.file!.name}</div>
                         <div className="text-[11px] text-muted3 mt-0.5">{slot.label} · {formatSize(slot.file!.size)}</div>
                       </div>
-                      <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-semibold">VALID</span>
+                      <span className="px-2 py-0.5 rounded bg-surface2 text-ink text-[10px] font-semibold">VALID</span>
                     </motion.div>
                   ))}
                 </div>

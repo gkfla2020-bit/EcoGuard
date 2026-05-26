@@ -141,7 +141,7 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg" title="수동 검증 없이 자동 처리된 비율">
                   <span className="text-[11px] text-muted2">STP</span>
-                  <span className="font-mono text-[12px] font-bold text-emerald-700">{((RESULTS.length - lowConfidence.length) / RESULTS.length * 100).toFixed(0)}%</span>
+                  <span className="font-mono text-[12px] font-bold text-ink">{((RESULTS.length - lowConfidence.length) / RESULTS.length * 100).toFixed(0)}%</span>
                 </div>
                 {lowConfidence.length > 0 && (
                   <div className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-lg">
@@ -206,8 +206,8 @@ export default function Step2OCR({ skipLoading = false }: { skipLoading?: boolea
                       <div key={v.pair} className="px-3 py-2.5 rounded-lg bg-surface border border-border">
                         <div className="text-[11px] text-muted2 mb-1">{v.pair}</div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-[14px] font-bold text-emerald-700">{v.match}/{v.fields}</span>
-                          <span className="text-[10px] text-emerald-600 font-medium">ALL MATCH</span>
+                          <span className="font-mono text-[14px] font-bold text-ink">{v.match}/{v.fields}</span>
+                          <span className="text-[10px] text-ink font-medium">ALL MATCH</span>
                         </div>
                       </div>
                     ))}

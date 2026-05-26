@@ -139,63 +139,56 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
+              className="max-w-[800px]"
             >
-              {/* Summary */}
-              <div className="flex items-center gap-6 mb-5 pb-4 border-b border-border">
-                {[
-                  { label: 'PASS', count: counts.pass, key: 'pass' as RuleStatus },
-                  { label: 'WARNING', count: counts.warn, key: 'warn' as RuleStatus },
-                  { label: 'FAIL', count: counts.fail, key: 'fail' as RuleStatus },
-                ].map(s => {
-                  const isActive = filter === s.key
-                  return (
-                    <button
-                      key={s.label}
-                      onClick={() => setFilter(isActive ? 'all' : s.key)}
-                      className={`text-left transition-all ${isActive ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
-                    >
-                      <div className="font-mono text-[9px] text-muted3 uppercase tracking-wide">{s.label}</div>
-                      <div className="font-heading text-[24px] font-bold text-ink">{s.count}</div>
-                    </button>
-                  )
-                })}
-                <div className="ml-auto font-mono text-[10px] text-muted3">{RULES.length} articles</div>
+              {/* Report Header */}
+              <div className="border-b border-border pb-4 mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-mono text-[10px] text-muted3">Report ID: ECO-{new Date().toISOString().slice(2,10).replace(/-/g,'')}-001</div>
+                  <div className="font-mono text-[10px] text-muted3">{new Date().toISOString().slice(0,10)}</div>
+                </div>
+                <h2 className="font-heading text-[20px] font-bold text-ink">Due Diligence Compliance Report</h2>
+                <div className="text-[12px] text-muted2 mt-1">PT. Sawit Kalimantan Utama → UniHana Trading GmbH · CPO 2,400MT · HS 1511.10</div>
               </div>
 
-              {/* Rules list */}
-              <div className="border border-border rounded-card overflow-hidden bg-white">
-                <div className="px-5 py-3 border-b border-border bg-surface flex items-center justify-between">
-                  <span className="text-[12px] font-semibold text-ink">조항별 판정 결과</span>
-                  <div className="flex gap-2">
-                    {['EUDR', 'CBAM', 'CSDDD'].map(r => (
-                      <span key={r} className="px-2 py-0.5 bg-white border border-border rounded text-[10px] font-mono text-muted2">{r}</span>
-                    ))}
+              {/* 1. Executive Summary */}
+              <div className="mb-8">
+                <div className="text-[11px] font-mono text-muted3 mb-2">1.0 EXECUTIVE SUMMARY</div>
+                <div className="border border-border rounded-lg p-4 bg-white">
+                  <div className="text-[13px] text-ink leading-relaxed mb-3">
+                    본 건은 EUDR, CBAM, CSDDD 3개 규제 {RULES.length}개 조항에 대해 검증을 수행하였습니다.
+                    서류 기반 <span className="font-semibold">{counts.pass}개 조항 적합</span>, 위성 검증 관련 <span className="font-semibold">{counts.warn}개 조항 주의</span> 판정을 받았습니다.
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 pt-3 border-t border-border">
+                    <div><div className="font-mono text-[9px] text-muted3 uppercase">Compliant</div><div className="font-mono text-[20px] font-bold text-ink">{counts.pass}/{RULES.length}</div></div>
+                    <div><div className="font-mono text-[9px] text-muted3 uppercase">Attention</div><div className="font-mono text-[20px] font-bold text-ink">{counts.warn}/{RULES.length}</div></div>
+                    <div><div className="font-mono text-[9px] text-muted3 uppercase">Non-Compliant</div><div className="font-mono text-[20px] font-bold text-ink">{counts.fail}/{RULES.length}</div></div>
                   </div>
                 </div>
-                <div className="divide-y divide-border">
-                  {activeRules.slice(0, visibleCount).filter(r => filter === 'all' || r.status === filter).map((rule, i) => (
+              </div>
+
+              {/* 2. Findings */}
+              <div className="mb-8">
+                <div className="text-[11px] font-mono text-muted3 mb-3">2.0 FINDINGS BY ARTICLE</div>
+                <div className="space-y-2">
+                  {activeRules.slice(0, visibleCount).map((rule, i) => (
                     <motion.div
                       key={`${rule.reg}-${rule.article}`}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.25 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                      className="border border-border rounded-lg bg-white overflow-hidden"
                     >
                       <div
                         onClick={() => setExpanded(i === expanded ? null : i)}
-                        className={`px-5 py-3.5 flex items-center gap-4 cursor-pointer transition-colors ${
-                          expanded === i ? 'bg-blue-50/60 border-l-2 border-l-blue-500 pl-[18px]' : 'hover:bg-surface/50'
-                        }`}
+                        className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors ${expanded === i ? 'bg-surface' : 'hover:bg-surface/50'}`}
                       >
-                        <StatusIcon status={rule.status} />
-                        <span className="w-[52px] shrink-0 font-mono text-[10px] text-muted3 uppercase font-semibold">{rule.reg}</span>
-                        <span className="w-[90px] shrink-0 font-mono text-[11px] text-muted2">{rule.article}</span>
+                        <span className="font-mono text-[10px] text-muted3 w-[20px]">2.{i + 1}</span>
+                        <span className="font-mono text-[10px] text-muted3 w-[44px]">{rule.reg}</span>
+                        <span className="font-mono text-[11px] text-muted2 w-[80px]">{rule.article}</span>
                         <span className="flex-1 text-[13px] text-ink">{rule.desc}</span>
-                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase ${
-                          rule.status === 'pass' ? 'bg-surface2 text-ink' :
-                          rule.status === 'warn' ? 'border border-border text-ink' :
-                          rule.status === 'pending' ? 'bg-surface2 text-muted3' : 'border border-border text-ink'
-                        }`}>{rule.status === 'pending' ? '대기' : rule.status}</span>
-                        <ChevronDown size={14} className={`text-muted3 transition-transform ${expanded === i ? 'rotate-180' : ''}`} />
+                        <span className="font-mono text-[10px] text-ink uppercase px-2 py-0.5 bg-surface2 rounded">{rule.status === 'pending' ? 'pending' : rule.status}</span>
+                        <ChevronDown size={13} className={`text-muted3 transition-transform ${expanded === i ? 'rotate-180' : ''}`} />
                       </div>
                       <AnimatePresence>
                         {expanded === i && (
@@ -206,16 +199,11 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden"
                           >
-                            <div className="px-5 pb-4 pl-[88px]">
-                              <div className="bg-surface rounded-lg p-3 space-y-2">
-                                <p className="text-[12px] text-muted2">{rule.detail}</p>
-                                <div className="flex items-center gap-4 text-[10px]">
-                                  <span><span className="text-muted3">근거:</span> <span className="font-mono text-muted2">{rule.evidence}</span></span>
-                                  <span><span className="text-muted3">위반 시:</span> <span className="font-semibold text-red-600">{rule.penalty}</span></span>
-                                  {rule.status === 'pending' && (
-                                    <span className="ml-auto text-blue-600 font-medium cursor-pointer hover:underline">Step 5에서 검증 →</span>
-                                  )}
-                                </div>
+                            <div className="px-4 pb-3 pt-1 border-t border-border">
+                              <div className="grid grid-cols-[80px_1fr] gap-y-2 text-[12px] mt-2">
+                                <span className="text-muted3">소견</span><span className="text-muted2">{rule.detail}</span>
+                                <span className="text-muted3">근거</span><span className="font-mono text-muted2 text-[11px]">{rule.evidence}</span>
+                                <span className="text-muted3">위반 시</span><span className="text-ink font-medium">{rule.penalty}</span>
                               </div>
                             </div>
                           </motion.div>
@@ -226,36 +214,25 @@ export default function Step3Regulation({ skipLoading = false, satelliteComplete
                 </div>
               </div>
 
-              {/* Overall verdict */}
-              {phase === 'done' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                  className="mt-4 border border-border rounded-card p-4 bg-surface flex items-center gap-4"
-                >
-                  <ShieldAlert size={20} className="text-ink shrink-0" />
-                  <div>
-                    <div className="text-[13px] font-semibold text-ink">종합 판정: 서류 적합 · 위성 검증 대기</div>
-                    <div className="text-[11px] text-muted2 mt-0.5">
-                      서류 기반 7개 조항 PASS. EUDR Art.3, Art.10은 위성 환경 검증(Step 5) 완료 후 최종 판정.
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* 최종 CTA */}
-              {phase === 'done' && (
-                <div className="mt-4 p-4 rounded-card flex items-center justify-between" style={{ backgroundColor: '#0A0A0A' }}>
-                  <div>
-                    <div className="text-[13px] font-semibold text-white">컴플라이언스 검증 완료</div>
-                    <div className="text-[11px] text-white/60 mt-0.5">모든 파이프라인 결과가 반영된 최종 DDS 보고서를 내보낼 수 있습니다.</div>
-                  </div>
-                  <button className="px-5 py-2.5 bg-white text-ink rounded-lg text-[12px] font-semibold hover:bg-white/90 transition-colors active:scale-[0.98]">
-                    DDS 보고서 내보내기
-                  </button>
+              {/* 3. Conclusion */}
+              <div className="mb-6">
+                <div className="text-[11px] font-mono text-muted3 mb-3">3.0 CONCLUSION</div>
+                <div className="border border-border rounded-lg p-4 bg-white text-[13px] text-ink leading-relaxed">
+                  본 케이스는 서류 기반 검증에서 {counts.pass}개 조항이 적합 판정을 받았으나, EUDR Art.3(산림전용 금지) 및 Art.10(Cutoff date) 항목은 위성 환경 검증 결과에 따라 최종 판정이 필요합니다.
+                  위성 검증이 완료되면 본 보고서가 자동 업데이트됩니다.
                 </div>
-              )}
+              </div>
+
+              {/* Export */}
+              <div className="flex items-center justify-between pt-4 border-t border-border">
+                <div className="font-mono text-[10px] text-muted3">EUDR 2023/1115 · CBAM 2023/956 · CSDDD 2024/1760</div>
+                <button
+                  style={{ backgroundColor: '#0A0A0A', color: '#fff' }}
+                  className="px-5 py-2.5 rounded-lg text-[12px] font-semibold hover:opacity-90 transition-all active:scale-[0.98]"
+                >
+                  DDS 보고서 내보내기
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

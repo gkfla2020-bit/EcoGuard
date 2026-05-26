@@ -128,8 +128,8 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
     <section>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="mb-4">
-          <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight"><span title="CBAM: EU 탄소국경조정메커니즘. EU로 수입되는 제품에 탄소 비용을 부과하는 제도 (2026년 본격 시행)" className="cursor-help">CBAM</span> 비용 분석</h2>
-          <p className="text-[13px] text-muted2 mt-1">EU에 수출할 때 <span title="내재 탄소: 제품 생산 과정에서 배출된 CO₂ 총량" className="underline decoration-dotted cursor-help">탄소 비용</span>을 얼마나 내야 하는지, 실측 데이터를 제출하면 얼마를 줄일 수 있는지 계산합니다.</p>
+          <h2 className="font-heading text-[22px] font-bold text-ink tracking-tight">CBAM 비용 분석</h2>
+          <p className="text-[13px] text-muted2 mt-1">EU에 수출할 때 탄소 비용을 얼마나 내야 하는지, 실측 데이터를 제출하면 얼마를 줄일 수 있는지 계산합니다.</p>
         </div>
 
         {/* 핵심 요약 */}

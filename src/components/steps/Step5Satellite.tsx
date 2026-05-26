@@ -242,7 +242,7 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                 <button
                   onClick={playing ? () => setPlaying(false) : startTimeline}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold transition-all active:scale-[0.98] ${
-                    playing ? 'bg-red-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+                    playing ? 'bg-ink text-white' : 'border border-border text-ink hover:bg-surface2'
                   }`}
                 >
                   {playing ? <><Pause size={13} /> 정지</> : <><Play size={13} /> 타임라인 재생</>}
@@ -423,7 +423,7 @@ export default function Step5Satellite({ skipLoading = false }: { skipLoading?: 
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <div className="text-[13px] font-semibold text-ink">NDVI 시계열 추이</div>
-                      <div className="text-[11px] text-muted2 mt-0.5"><span title="NDVI: 식물의 활력을 0~1로 나타낸 지수. 0.6 이상이면 건강한 산림." className="underline decoration-dotted cursor-help">NDVI</span> · 2019–2024</div>
+                      <div className="text-[11px] text-muted2 mt-0.5">NDVI · 2019–2024</div>
                     </div>
                     <div className="flex items-center gap-3 text-[10px] text-muted3">
                       <span className="flex items-center gap-1"><span className="w-3 h-[2px] bg-emerald-500 inline-block" /> NDVI</span>

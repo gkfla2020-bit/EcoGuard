@@ -127,9 +127,9 @@ export default function App() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-[240px] border-r border-border bg-surface flex flex-col shrink-0">
+      <aside className="w-[220px] border-r border-border bg-surface flex flex-col shrink-0">
         {/* Brand */}
-        <div className="px-5 pt-5 pb-4">
+        <div className="px-4 pt-4 pb-3">
           <div className="flex items-center gap-2.5">
             <svg width={22} height={22} viewBox="0 0 20 20" fill="none">
               <circle cx="10" cy="10" r="9" stroke="#0A0A0A" strokeWidth="1.5" />

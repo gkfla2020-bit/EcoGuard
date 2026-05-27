@@ -132,24 +132,24 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
           <p className="text-[13px] text-muted2 mt-1">EU에 수출할 때 <span title="내재 탄소: 제품 생산 과정에서 배출된 CO₂ 총량" className="underline decoration-dotted cursor-help">탄소 비용</span>을 얼마나 내야 하는지, 실측 데이터를 제출하면 얼마를 줄일 수 있는지 계산합니다.</p>
         </div>
 
-        {/* 핵심 요약 */}
+        {/* 핵심 요약 — 슬라이더에 따라 동적 */}
         <div className="mb-4 border border-border rounded-card bg-white p-4">
-          <div className="text-[13px] font-semibold text-ink mb-2">비용 요약</div>
+          <div className="text-[13px] font-semibold text-ink mb-2">비용 요약 <span className="text-[10px] font-normal text-muted3 ml-1">({simVolume.toLocaleString()}MT · ₩{simFx.toLocaleString()}/€ 기준)</span></div>
           <div className="grid grid-cols-3 gap-4 text-[12px]">
             <div>
               <div className="text-muted3 mb-0.5">미제출 시 (EU 기본값)</div>
-              <div className="font-mono text-[16px] font-bold text-ink">4.5 <span className="text-[11px] font-normal text-muted2">tCO₂/t</span></div>
-              <div className="text-muted3 text-[10px] mt-0.5">2034년 연 25.4억 원 부담</div>
+              <div className="font-mono text-[16px] font-bold text-ink">{costData[costData.length - 1]['EU 기본값'].toFixed(1)} <span className="text-[11px] font-normal text-muted2">억/년</span></div>
+              <div className="text-muted3 text-[10px] mt-0.5">4.5 tCO₂/t 적용</div>
             </div>
             <div>
               <div className="text-muted3 mb-0.5">실측 제출 시</div>
-              <div className="font-mono text-[16px] font-bold text-ink">3.2 <span className="text-[11px] font-normal text-muted2">tCO₂/t</span></div>
-              <div className="text-muted3 text-[10px] mt-0.5">2034년 연 18.0억 원 부담</div>
+              <div className="font-mono text-[16px] font-bold text-ink">{costData[costData.length - 1]['실측 제출'].toFixed(1)} <span className="text-[11px] font-normal text-muted2">억/년</span></div>
+              <div className="text-muted3 text-[10px] mt-0.5">3.2 tCO₂/t 적용</div>
             </div>
             <div>
               <div className="text-muted3 mb-0.5">절감 효과</div>
-              <div className="font-mono text-[16px] font-bold text-ink">7.3 <span className="text-[11px] font-normal text-muted2">억 원/년</span></div>
-              <div className="text-muted3 text-[10px] mt-0.5">실측 데이터 검증·제출로 절감</div>
+              <div className="font-mono text-[16px] font-bold text-ink">{finalSaving} <span className="text-[11px] font-normal text-muted2">억 원/년</span></div>
+              <div className="text-muted3 text-[10px] mt-0.5">2034년 기준</div>
             </div>
           </div>
         </div>

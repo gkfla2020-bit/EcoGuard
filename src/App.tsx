@@ -57,7 +57,7 @@ export default function App() {
     return (
       <div className="h-screen bg-white flex flex-col">
         {/* Top bar */}
-        <div className="h-12 border-b border-border flex items-center px-10 justify-between shrink-0">
+        <div className="h-12 border-b border-border/50 flex items-center px-10 justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
               <circle cx="10" cy="10" r="9" stroke="#0A0A0A" strokeWidth="1.5" />
@@ -91,7 +91,7 @@ export default function App() {
               {['서류 접수', 'OCR 추출', 'CBAM 산정', '위성 검증', '통합 보고서'].map((label, i) => (
                 <div key={i} className="flex items-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-7 h-7 rounded-full border-2 border-ink flex items-center justify-center font-mono text-[10px] font-bold text-ink">{i + 1}</div>
+                    <div className="w-7 h-7 rounded-full border border-border2 flex items-center justify-center font-mono text-[10px] font-semibold text-ink">{i + 1}</div>
                     <span className="text-[10px] text-muted2 mt-1.5 whitespace-nowrap">{label}</span>
                   </div>
                   {i < 4 && <div className="w-10 h-[1px] bg-border2 mx-1.5 -mt-4" />}
@@ -111,7 +111,7 @@ export default function App() {
         </div>
 
         {/* Bottom bar */}
-        <div className="h-10 border-t border-border flex items-center px-10 justify-between shrink-0">
+        <div className="h-10 border-t border-border/50 flex items-center px-10 justify-between shrink-0">
           <div className="flex gap-4 font-mono text-[10px] text-muted3">
             <span>EUDR 2023/1115</span>
             <span>CBAM 2023/956</span>

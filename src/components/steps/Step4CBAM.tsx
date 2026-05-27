@@ -339,7 +339,7 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
                         <span className="text-[11px] text-muted2">연간 수출량</span>
                         <motion.span key={simVolume} initial={{ scale: 1.1 }} animate={{ scale: 1 }} className="font-mono text-[12px] font-bold text-ink inline-block">{simVolume.toLocaleString()}톤</motion.span>
                       </div>
-                      <input type="range" min={500} max={10000} step={100} value={simVolume} onChange={e => setSimVolume(Number(e.target.value))}
+                      <input type="range" min={500} max={50000} step={500} value={simVolume} onChange={e => setSimVolume(Number(e.target.value))}
                         className="w-full h-1.5 bg-surface2 rounded-full appearance-none cursor-pointer accent-ink" />
                     </div>
                     <div>
@@ -347,7 +347,7 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
                         <span className="text-[11px] text-muted2">환율</span>
                         <motion.span key={simFx} initial={{ scale: 1.1 }} animate={{ scale: 1 }} className="font-mono text-[12px] font-bold text-ink inline-block">₩{simFx.toLocaleString()}/€</motion.span>
                       </div>
-                      <input type="range" min={1200} max={1700} step={10} value={simFx} onChange={e => setSimFx(Number(e.target.value))}
+                      <input type="range" min={1000} max={2000} step={10} value={simFx} onChange={e => setSimFx(Number(e.target.value))}
                         className="w-full h-1.5 bg-surface2 rounded-full appearance-none cursor-pointer accent-ink" />
                     </div>
                   </div>

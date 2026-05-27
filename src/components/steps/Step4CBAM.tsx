@@ -230,9 +230,9 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
                           cursor={{ stroke: '#a1a1aa', strokeWidth: 1 }}
                         />
                         <Area type="monotone" dataKey="density" stroke="#3f3f46" strokeWidth={2.5} fill="url(#gaussGrad)" dot={false} animationDuration={1200} />
-                        <ReferenceLine x={SECTOR.euDefault} stroke="#dc2626" strokeDasharray="6 4" strokeWidth={2} label={{ value: `EU 기본값 (${SECTOR.euDefault})`, position: 'top', fontSize: 11, fill: '#dc2626', fontWeight: 600 }} />
-                        <ReferenceLine x={SECTOR.benchmark} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} label={{ value: `벤치마크 (${SECTOR.benchmark})`, position: 'insideBottomRight', fontSize: 10, fill: '#3b82f6' }} />
-                        <ReferenceDot x={EF} y={userDensity} r={8} fill="#10b981" stroke="#fff" strokeWidth={3} label={{ value: `본건: ${EF}`, position: 'top', fontSize: 12, fontWeight: 700, fill: '#0a0a0a', offset: 12 }} />
+                        <ReferenceLine x={SECTOR.euDefault} stroke="#71717a" strokeDasharray="6 4" strokeWidth={2} label={{ value: `EU 기본값 (${SECTOR.euDefault})`, position: 'top', fontSize: 11, fill: '#71717a', fontWeight: 600 }} />
+                        <ReferenceLine x={SECTOR.benchmark} stroke="#d4d4d8" strokeDasharray="4 3" strokeWidth={1.5} label={{ value: `벤치마크 (${SECTOR.benchmark})`, position: 'insideBottomRight', fontSize: 10, fill: '#d4d4d8' }} />
+                        <ReferenceDot x={EF} y={userDensity} r={8} fill="#6366f1" stroke="#fff" strokeWidth={3} label={{ value: `본건: ${EF}`, position: 'top', fontSize: 12, fontWeight: 700, fill: '#0a0a0a', offset: 12 }} />
                       </AreaChart>
                     </ResponsiveContainer>
                     <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
@@ -358,8 +358,8 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
                       <AreaChart data={costData} margin={{ top: 10, right: 20, bottom: 5, left: 0 }}>
                         <defs>
                           <linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                            <stop offset="0%" stopColor="#6366f1" stopOpacity={0.12} />
+                            <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
@@ -371,9 +371,9 @@ export default function Step4CBAM({ skipLoading = false }: { skipLoading?: boole
                           cursor={{ stroke: '#d4d4d8', strokeWidth: 1, strokeDasharray: '4 4' }}
                         />
                         <Legend wrapperStyle={{ fontSize: 11 }} iconType="circle" iconSize={8} />
-                        <Area type="monotone" dataKey="실측 제출" stroke="#10b981" strokeWidth={2.5} fill="url(#gradActual)" dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} />
-                        <Line type="monotone" dataKey="EU 기본값" stroke="#ef4444" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, fill: '#ef4444' }} />
-                        <Line type="monotone" dataKey="벤치마크 달성" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="3 3" dot={{ r: 3, fill: '#3b82f6' }} />
+                        <Area type="monotone" dataKey="실측 제출" stroke="#6366f1" strokeWidth={2.5} fill="url(#gradActual)" dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }} />
+                        <Line type="monotone" dataKey="EU 기본값" stroke="#a1a1aa" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3, fill: '#a1a1aa' }} />
+                        <Line type="monotone" dataKey="벤치마크 달성" stroke="#d4d4d8" strokeWidth={1.5} strokeDasharray="3 3" dot={{ r: 3, fill: '#d4d4d8' }} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>

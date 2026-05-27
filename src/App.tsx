@@ -260,7 +260,8 @@ export default function App() {
         </header>
 
         {/* Content */}
-        <div id="main-scroll" className="flex-1 overflow-y-auto px-8 py-5 bg-surface">
+        <div id="main-scroll" className="flex-1 overflow-y-auto px-8 py-6 bg-surface">
+          <div className="max-w-[900px]">
           <AnimatePresence mode="wait" onExitComplete={() => { document.getElementById('main-scroll')?.scrollTo({ top: 0 }) }}>
             <motion.div
               key={step}
@@ -276,6 +277,7 @@ export default function App() {
               {step === 5 && <Step3Regulation skipLoading={completedSteps.current.has(5)} satelliteCompleted={completedSteps.current.has(4)} />}
             </motion.div>
           </AnimatePresence>
+          </div>
         </div>
 
         {/* Bottom bar */}

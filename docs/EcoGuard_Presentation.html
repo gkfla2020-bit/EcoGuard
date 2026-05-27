@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoGuard — EU 환경 규제 통합 컴플라이언스 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #0a0a0a;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Slide layout */
+.slide {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 120px;
+  position: relative;
+  border-bottom: 1px solid #f4f4f5;
+}
+.slide-dark {
+  background: #0a0a0a;
+  color: #fafafa;
+  border-bottom: none;
+}
+.slide-dark h1, .slide-dark h2, .slide-dark h3 { color: #fafafa; }
+.slide-dark p, .slide-dark li { color: #a1a1aa; }
+.slide-dark .accent { color: #fafafa; }
+
+/* Typography */
+h1 {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+h2 {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-top: 24px;
+}
+p {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #3f3f46;
+  margin-bottom: 16px;
+  max-width: 680px;
+}
+.lead {
+  font-size: 20px;
+  line-height: 1.7;
+  color: #27272a;
+  max-width: 720px;
+}
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #71717a;
+  letter-spacing: 0.02em;
+}
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  display: block;
+}
+.accent { color: #0a0a0a; font-weight: 600; }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 32px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; margin-top: 32px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 32px; }
+
+/* Cards */
+.card {
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  padding: 28px;
+  background: #fff;
+}
+.card-dark {
+  border: 1px solid #27272a;
+  background: #18181b;
+  border-radius: 10px;
+  padding: 28px;
+}
+.card h3 { margin-top: 0; }
+.card p:last-child { margin-bottom: 0; }
+
+/* Stats */
+.stat-number {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-label {
+  font-size: 13px;
+  color: #71717a;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14px;
+}
+th {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid #e4e4e7;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #71717a;
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f4f4f5;
+  color: #3f3f46;
+}
+.slide-dark th { border-bottom-color: #27272a; color: #a1a1aa; }
+.slide-dark td { border-bottom-color: #27272a; color: #a1a1aa; }
+
+/* Pipeline */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 40px 0;
+}
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+.pipeline-step .num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #d4d4d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.pipeline-step .label {
+  font-size: 13px;
+  color: #52525b;
+  text-align: center;
+}
+.pipeline-line {
+  width: 60px;
+  height: 1px;
+  background: #d4d4d8;
+  margin-bottom: 30px;
+}
+
+/* Footer per slide */
+.slide-footer {
+  position: absolute;
+  bottom: 32px;
+  left: 120px;
+  right: 120px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #a1a1aa;
+}
+.slide-dark .slide-footer { color: #52525b; }
+
+/* Flow diagram */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 24px 0;
+}
+.flow-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+.flow-item .step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #a1a1aa;
+  width: 24px;
+}
+.flow-item .desc {
+  font-size: 14px;
+  color: #27272a;
+}
+.flow-item .detail {
+  margin-left: auto;
+  font-size: 12px;
+  color: #71717a;
+}
+
+/* Comparison */
+.vs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 32px;
+  align-items: center;
+  margin: 32px 0;
+}
+.vs-divider {
+  font-size: 20px;
+  color: #d4d4d8;
+}
+
+@media print {
+  .slide { min-height: auto; page-break-after: always; padding: 40px; }
+  .slide-footer { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Cover -->
+<div class="slide slide-dark">
+  <span class="mono" style="margin-bottom: 40px;">Team 유니하나 · 하나은행 대학생 연합</span>
+  <h1 style="font-size: 56px; max-width: 800px;">EU 환경 규제 대응을 위한<br>통합 컴플라이언스 플랫폼</h1>
+  <p class="lead" style="color: #a1a1aa; margin-top: 16px;">
+    EUDR 산림전용 검증, CBAM 탄소비용 산정, CSDDD 공급망 실사를<br>
+    하나의 AI 파이프라인으로 자동화합니다.
+  </p>
+  <div style="margin-top: 48px; display: flex; gap: 16px;">
+    <span class="mono" style="padding: 8px 16px; border: 1px solid #27272a; border-radius: 6px;">EUDR 2023/1115</span>
+    <span class="mono" style="padding: 8px 16px; border: 1px solid #27272a; border-radius: 6px;">CBAM 2023/956</span>
+    <span class="mono" style="padding: 8px 16px; border: 1px solid #27272a; border-radius: 6px;">CSDDD 2024/1760</span>
+  </div>
+  <div class="slide-footer">
+    <span>EcoGuard v2.0</span>
+    <span>2026</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: Problem -->
+<div class="slide">
+  <span class="section-num">01 — Problem</span>
+  <h2>EU가 한국 수출 기업에<br>요구하는 것들</h2>
+  <p class="lead">2023년부터 EU는 세계에서 가장 강력한 환경 규제 3종을 시행합니다. 한국 수출 기업 3,200여 개사가 직접적인 영향을 받으며, 미대응 시 EU 시장 진입 자체가 불가능합니다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>EUDR</h3>
+      <p style="font-size: 14px;">산림전용 규제. 2020년 이후 산림이 파괴된 토지에서 생산된 원자재의 EU 반입을 전면 금지합니다. 팜유, 대두, 목재, 커피, 카카오, 고무, 소가죽 7대 품목이 대상이며, 위반 시 매출액 4% 과징금과 시장 퇴출이 적용됩니다. 기업은 원산지의 위성 좌표를 제출하고, 산림전용이 없었음을 증명해야 합니다.</p>
+    </div>
+    <div class="card">
+      <h3>CBAM</h3>
+      <p style="font-size: 14px;">탄소국경조정메커니즘. EU로 수입되는 제품에 내재된 탄소에 비용을 부과합니다. 2026년 본격 시행되며, 2034년까지 무상할당이 완전 폐지됩니다. 철강, 알루미늄, 시멘트, 전력, 비료, 수소 외에 팜유 등 농산물도 간접 적용됩니다. 데이터 미제출 시 EU가 최대값을 강제 적용하여 비용이 29% 이상 증가합니다.</p>
+    </div>
+    <div class="card">
+      <h3>CSDDD</h3>
+      <p style="font-size: 14px;">공급망 실사 지침. 기업이 자사 공급망 전체에서 인권 및 환경 부정적 영향을 식별·예방·완화할 의무를 부과합니다. 2027년부터 EU 매출 €150M 이상 기업에 적용되며, 위반 시 매출액 5% 과징금과 이사 개인 책임이 발생합니다. 소규모 농가까지 포함하는 공급망 투명성이 요구됩니다.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>01 / Problem</span>
+  </div>
+</div>
+
+<!-- SLIDE 3: Impact Numbers -->
+<div class="slide slide-dark">
+  <span class="section-num" style="color: #52525b;">02 — Impact</span>
+  <h2>미대응 시 비용</h2>
+  <p class="lead" style="color: #a1a1aa;">본 케이스 기준: CPO(팜유) 2,400MT, 인도네시아 → EU 수출 건</p>
+
+  <div class="grid-3" style="margin-top: 48px;">
+    <div class="card-dark">
+      <div class="stat-number" style="color: #fafafa;">25.4억</div>
+      <div class="stat-label">CBAM 미제출 시 연간 비용 (2034)</div>
+      <p style="font-size: 13px; color: #71717a; margin-top: 12px;">EU 기본값 4.5 tCO₂/t 강제 적용. 실제 배출계수(3.2)보다 40% 높은 값으로 비용 산정.</p>
+    </div>
+    <div class="card-dark">
+      <div class="stat-number" style="color: #fafafa;">7.3억</div>
+      <div class="stat-label">EcoGuard 사용 시 연간 절감액</div>
+      <p style="font-size: 13px; color: #71717a; margin-top: 12px;">실측 데이터(3.2 tCO₂/t)를 검증·제출하여 EU 기본값 대비 29% 비용 절감.</p>
+    </div>
+    <div class="card-dark">
+      <div class="stat-number" style="color: #fafafa;">4%</div>
+      <div class="stat-label">EUDR 위반 시 과징금 (매출액 대비)</div>
+      <p style="font-size: 13px; color: #71717a; margin-top: 12px;">산림전용 미증명 시 통관 거부 + 과징금 + 반복 위반 시 시장 영구 퇴출.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>02 / Impact</span>
+  </div>
+</div>
+
+<!-- SLIDE 4: Solution -->
+<div class="slide">
+  <span class="section-num">03 — Solution</span>
+  <h2>5단계 자동화 파이프라인</h2>
+  <p class="lead">서류 제출부터 위성 기반 산림전용 검증까지, 기존에 2~4주 걸리던 컴플라이언스 프로세스를 수 분 내로 단축합니다.</p>
+
+  <div class="pipeline">
+    <div class="pipeline-step"><div class="num">1</div><div class="label">서류 접수</div></div>
+    <div class="pipeline-line"></div>
+    <div class="pipeline-step"><div class="num">2</div><div class="label">OCR 추출</div></div>
+    <div class="pipeline-line"></div>
+    <div class="pipeline-step"><div class="num">3</div><div class="label">CBAM 산정</div></div>
+    <div class="pipeline-line"></div>
+    <div class="pipeline-step"><div class="num">4</div><div class="label">위성 검증</div></div>
+    <div class="pipeline-line"></div>
+    <div class="pipeline-step"><div class="num">5</div><div class="label">통합 보고서</div></div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-item"><span class="step">01</span><span class="desc">수입 서류 드래그앤드롭 업로드</span><span class="detail">Invoice, B/L, Origin Cert, DDS, GPS polygon</span></div>
+    <div class="flow-item"><span class="step">02</span><span class="desc">AI OCR로 핵심 정보 자동 추출 + 교차 검증</span><span class="detail">HS코드 기반 적용 규제 자동 매핑</span></div>
+    <div class="flow-item"><span class="step">03</span><span class="desc">배출 데이터 품질 검증 + 2026~2034 비용 시뮬레이션</span><span class="detail">블록체인 인증, 슬라이더 실시간 반응</span></div>
+    <div class="flow-item"><span class="step">04</span><span class="desc">Sentinel-2 위성영상 CNN 분석</span><span class="detail">U-Net Segmentation + Grad-CAM + NDVI</span></div>
+    <div class="flow-item"><span class="step">05</span><span class="desc">8개 섹션 상세 보고서 자동 생성</span><span class="detail">DDS 형식 내보내기 (EU 제출용)</span></div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>03 / Solution</span>
+  </div>
+</div>
+
+<!-- SLIDE 5: Satellite AI -->
+<div class="slide">
+  <span class="section-num">04 — Core Technology</span>
+  <h2>위성 AI 산림전용 검증</h2>
+  <p class="lead">Sentinel-2 위성영상(2019~2024)을 CNN으로 분석하여, EUDR cutoff date(2020-12-31) 이후 산림전용 여부를 객관적으로 판별합니다. 기존의 주관적 현장 실사를 대체할 수 있는 자동화된 검증 체계입니다.</p>
+
+  <div class="grid-2">
+    <div>
+      <h3>분석 파이프라인</h3>
+      <table>
+        <tr><th>단계</th><th>기술</th><th>출력</th></tr>
+        <tr><td>1. 영상 수집</td><td>Sentinel-2 L2A</td><td>10m 해상도 6년치</td></tr>
+        <tr><td>2. Segmentation</td><td>U-Net (ResNet34)</td><td>산림/농지/나지/도시 분류</td></tr>
+        <tr><td>3. Explainability</td><td>Grad-CAM</td><td>판단 근거 히트맵</td></tr>
+        <tr><td>4. 정량화</td><td>NDVI 시계열</td><td>식생 건강도 수치</td></tr>
+        <tr><td>5. 판정</td><td>Rule Engine</td><td>High/Medium/Low Risk</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>본 케이스 결과</h3>
+      <div class="card" style="margin-top: 16px;">
+        <table style="margin: 0;">
+          <tr><td style="font-weight: 600;">원산지</td><td>Central Kalimantan, Indonesia</td></tr>
+          <tr><td style="font-weight: 600;">좌표</td><td>2.50°S, 111.79°E</td></tr>
+          <tr><td style="font-weight: 600;">산림 2019</td><td>78%</td></tr>
+          <tr><td style="font-weight: 600;">산림 2024</td><td>47%</td></tr>
+          <tr><td style="font-weight: 600;">변화량</td><td>−31%p</td></tr>
+          <tr><td style="font-weight: 600;">NDVI 2024</td><td>0.50 (임계값 0.6 하회)</td></tr>
+          <tr><td style="font-weight: 600;">판정</td><td>HIGH RISK</td></tr>
+        </table>
+      </div>
+      <p style="font-size: 13px; color: #71717a; margin-top: 12px;">Grad-CAM 분석에서 팜유 플랜테이션 확장에 의한 산림 전환이 주요 원인으로 식별됨</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>04 / Satellite AI</span>
+  </div>
+</div>
+
+<!-- SLIDE 6: CBAM -->
+<div class="slide">
+  <span class="section-num">05 — CBAM Simulation</span>
+  <h2>탄소비용 시뮬레이션</h2>
+  <p class="lead">CBAM 무상할당 폐지 스케줄(2026년 2.5% → 2034년 100%)을 반영하여, 향후 9년간의 비용 경로를 3개 시나리오로 예측합니다. 수출량과 환율을 실시간으로 조정하여 의사결정에 활용할 수 있습니다.</p>
+
+  <div class="grid-2">
+    <div>
+      <h3>비용 비교 (2034년 기준)</h3>
+      <table>
+        <tr><th>시나리오</th><th>배출계수</th><th>연간 비용</th></tr>
+        <tr><td>EU 기본값 (미제출)</td><td>4.5 tCO₂/t</td><td style="font-weight: 600;">25.4억 원</td></tr>
+        <tr><td>실측 제출 (현재)</td><td>3.2 tCO₂/t</td><td style="font-weight: 600;">18.0억 원</td></tr>
+        <tr><td>벤치마크 달성</td><td>1.8 tCO₂/t</td><td style="font-weight: 600;">10.1억 원</td></tr>
+      </table>
+      <p style="font-size: 14px; margin-top: 16px;">실측 데이터 제출만으로 연간 <span class="accent">7.3억 원</span> 절감. 추가 감축 투자(바이오매스 보일러 전환) 시 <span class="accent">15.3억 원</span>까지 절감 가능.</p>
+    </div>
+    <div>
+      <h3>연도별 Phase-in</h3>
+      <table>
+        <tr><th>연도</th><th>무상할당 폐지율</th><th>실측 비용</th><th>절감액</th></tr>
+        <tr><td>2026</td><td>2.5%</td><td>0.1억</td><td>0.1억</td></tr>
+        <tr><td>2028</td><td>10%</td><td>0.6억</td><td>0.4억</td></tr>
+        <tr><td>2030</td><td>35%</td><td>2.9억</td><td>1.9억</td></tr>
+        <tr><td>2032</td><td>60%</td><td>7.2억</td><td>3.8억</td></tr>
+        <tr><td>2034</td><td>100%</td><td>18.0억</td><td>7.3억</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>05 / CBAM</span>
+  </div>
+</div>
+
+<!-- SLIDE 7: Tech Stack -->
+<div class="slide slide-dark">
+  <span class="section-num" style="color: #52525b;">06 — Technology</span>
+  <h2>기술 스택</h2>
+  <p class="lead" style="color: #a1a1aa;">프론트엔드 단독으로 동작하는 SPA(Single Page Application) 아키텍처. 위성 분석 결과는 사전 생성된 이미지를 로드하며, CBAM 시뮬레이션은 클라이언트 사이드에서 실시간 계산됩니다.</p>
+
+  <div class="grid-2" style="margin-top: 40px;">
+    <div>
+      <h3 style="color: #fafafa;">Application Layer</h3>
+      <table>
+        <tr><td style="color: #fafafa; font-weight: 500;">Framework</td><td>React 18 + TypeScript</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">Build</td><td>Vite 6</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">Styling</td><td>Tailwind CSS</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">Animation</td><td>framer-motion</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">Charts</td><td>Recharts</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">Icons</td><td>lucide-react</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="color: #fafafa;">Analysis Layer</h3>
+      <table>
+        <tr><td style="color: #fafafa; font-weight: 500;">위성 데이터</td><td>Sentinel-2 Cloudless (EOX WMS)</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">CNN</td><td>U-Net + ResNet34 backbone</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">XAI</td><td>Grad-CAM saliency map</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">지수 분석</td><td>NDVI (NIR−R)/(NIR+R)</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">블록체인</td><td>SHA-256 (Web Crypto API)</td></tr>
+        <tr><td style="color: #fafafa; font-weight: 500;">보고서</td><td>DDS TXT/CSV export</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>06 / Technology</span>
+  </div>
+</div>
+
+<!-- SLIDE 8: Current Status -->
+<div class="slide">
+  <span class="section-num">07 — Status</span>
+  <h2>개발 현황</h2>
+  <p class="lead">2026년 5월 23일~28일, 6일간 집중 개발하여 5단계 파이프라인 전체 구현을 완료하였습니다. 총 100+ commits, React 컴포넌트 7개, 코드 약 2,200줄 규모입니다.</p>
+
+  <div class="grid-2">
+    <div>
+      <h3>완료된 기능</h3>
+      <div class="flow">
+        <div class="flow-item"><span class="step">✓</span><span class="desc">서류 드래그앤드롭 업로드 + 자동 검증</span></div>
+        <div class="flow-item"><span class="step">✓</span><span class="desc">OCR 12필드 추출 + 교차 검증 + 규제 매핑</span></div>
+        <div class="flow-item"><span class="step">✓</span><span class="desc">CBAM 품질스코어 + 블록체인 + 시뮬레이션</span></div>
+        <div class="flow-item"><span class="step">✓</span><span class="desc">위성 CNN 분석 + Grad-CAM + NDVI + 타임라인</span></div>
+        <div class="flow-item"><span class="step">✓</span><span class="desc">8섹션 상세 보고서 + DDS/CSV 내보내기</span></div>
+        <div class="flow-item"><span class="step">✓</span><span class="desc">Step 간 데이터 연동 (위성→보고서 자동 반영)</span></div>
+      </div>
+    </div>
+    <div>
+      <h3>향후 계획</h3>
+      <div class="flow">
+        <div class="flow-item"><span class="step">→</span><span class="desc">실제 CNN 모델 학습 (PyTorch U-Net)</span></div>
+        <div class="flow-item"><span class="step">→</span><span class="desc">PDF 형식 DDS 보고서 생성</span></div>
+        <div class="flow-item"><span class="step">→</span><span class="desc">Vercel 배포 + 도메인 연결</span></div>
+        <div class="flow-item"><span class="step">→</span><span class="desc">실시간 위성 모니터링 (주기적 스캔)</span></div>
+        <div class="flow-item"><span class="step">→</span><span class="desc">다국어 보고서 (EU 제출용 영문)</span></div>
+        <div class="flow-item"><span class="step">→</span><span class="desc">B2B SaaS 론칭</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>07 / Status</span>
+  </div>
+</div>
+
+<!-- SLIDE 9: Key Decisions -->
+<div class="slide">
+  <span class="section-num">08 — Decisions</span>
+  <h2>핵심 기술 의사결정</h2>
+  <p class="lead">프로젝트 진행 중 내린 주요 기술적 판단과 그 근거입니다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>GAN → CNN 전환</h3>
+      <p style="font-size: 14px;">초기에는 GAN으로 위성 이미지 분석을 시도했으나, GAN은 이미지 "생성"에 특화되어 산림전용 "검출"과 목적이 다릅니다. CNN(U-Net)은 픽셀 단위 분류가 가능하고, Grad-CAM으로 판단 근거를 설명할 수 있어 규제 감사에 적합합니다. 선배(안지홍) 피드백으로 확정.</p>
+    </div>
+    <div class="card">
+      <h3>규제심사 → 통합 보고서</h3>
+      <p style="font-size: 14px;">기존에 "규제심사"가 파이프라인 중간에 있었으나, 위성 검증 전에 위성 결과를 참조하는 논리적 모순이 있었습니다. 모든 검증이 끝난 후 마지막에 "통합 보고서"로 결과를 종합하는 구조로 재설계했습니다.</p>
+    </div>
+    <div class="card">
+      <h3>Monochrome 디자인</h3>
+      <p style="font-size: 14px;">초록/노랑/빨강 색상 카드를 사용했으나 "AI가 만든 티가 난다"는 피드백을 받았습니다. ink(#0A0A0A) + surface + muted 단색 계열로 전환하고, 색은 차트 데이터에만 최소한으로 사용합니다. Plausible/Linear 차트 색상(indigo 단색) 참고.</p>
+    </div>
+    <div class="card">
+      <h3>사용자 주도 분석</h3>
+      <p style="font-size: 14px;">자동 시작 방식(페이지 진입 시 로딩 시작)에서, "분석 실행" 버튼을 클릭해야 시작하는 방식으로 변경했습니다. 실제 엔터프라이즈 도구(ABBYY, Watershed)는 사용자가 준비된 후 실행하는 패턴을 따릅니다.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>08 / Decisions</span>
+  </div>
+</div>
+
+<!-- SLIDE 10: Questions -->
+<div class="slide slide-dark">
+  <span class="section-num" style="color: #52525b;">09 — Discussion</span>
+  <h2>멘토님 확인 사항</h2>
+  <p class="lead" style="color: #a1a1aa;">다음 단계 진행을 위해 방향성 확인이 필요한 항목들입니다.</p>
+
+  <div style="margin-top: 40px;">
+    <div class="card-dark" style="margin-bottom: 16px;">
+      <h3 style="color: #fafafa; margin-top: 0;">1. CNN 학습 데이터셋</h3>
+      <p style="font-size: 14px;">Global Forest Change(Hansen et al.), MapBiomas 등 공개 데이터셋을 training에 활용하고, Sentinel-2 Central Kalimantan 영상을 test set으로 사용하는 방향이 적절할까요?</p>
+    </div>
+    <div class="card-dark" style="margin-bottom: 16px;">
+      <h3 style="color: #fafafa; margin-top: 0;">2. 논문 초점</h3>
+      <p style="font-size: 14px;">EUDR 규제 적용 사례(응용) vs CNN 방법론 자체(기술) 중 어디에 무게를 둘지. 현재는 "CNN+Grad-CAM의 EUDR 적용 가능성"으로 잡고 있습니다.</p>
+    </div>
+    <div class="card-dark" style="margin-bottom: 16px;">
+      <h3 style="color: #fafafa; margin-top: 0;">3. 시연/발표 강조점</h3>
+      <p style="font-size: 14px;">기술 데모(CNN 분석 과정) vs 비즈니스 임팩트(7.3억 절감) vs 규제 도메인 이해도 — 심사 기준에 따라 비중 조절이 필요합니다.</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">
+    <span>EcoGuard</span>
+    <span>09 / Discussion</span>
+  </div>
+</div>
+
+<!-- SLIDE 11: End -->
+<div class="slide" style="text-align: center; justify-content: center; align-items: center;">
+  <span class="mono" style="margin-bottom: 24px;">github.com/gkfla2020-bit/EcoGuard</span>
+  <h1 style="font-size: 36px;">감사합니다</h1>
+  <p style="text-align: center; max-width: none; color: #71717a; margin-top: 16px;">Team 유니하나 · 하나은행 대학생 연합 · 2026</p>
+</div>
+
+</body>
+</html>

@@ -260,7 +260,7 @@ export default function App() {
         </header>
 
         {/* Content */}
-        <div id="main-scroll" className="flex-1 overflow-y-auto px-8 py-5">
+        <div id="main-scroll" className="flex-1 overflow-y-auto px-8 py-5 bg-surface">
           <AnimatePresence mode="wait" onExitComplete={() => { document.getElementById('main-scroll')?.scrollTo({ top: 0 }) }}>
             <motion.div
               key={step}
